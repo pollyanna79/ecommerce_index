@@ -1,171 +1,187 @@
-        <!DOCTYPE html>
-        <html lang="pt-br">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>E-commerce - Minha Loja</title>
-            <link rel="stylesheet" href="projetostyle.css">
-        </head>
-        <body>
+  <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polly e-commerce - Sua Loja Online</title>
+    <link rel="stylesheet" href="projetostyle.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
 
-            <header>
-                <h1>Polly e-commerce</h1>
-                <button class="tracking-status-btn" id="tracking-btn">
-                    <span class="tracking-icon">🚚</span>
-                    <span id="order-status-text">Pedidos</span>
-                </button>
-                <div class="cart-icon">
-                    <span id="cart-counter">0</span>
-                    <button id="view-cart-btn">🛒 Carrinho</button>
+    <header>
+        <h1>Polly e-commerce</h1>
+        <div class="header-controls">
+            <button type="button" class="tracking-status-btn" id="tracking-btn">
+                <span class="tracking-icon">🚚</span>
+                <span id="order-status-text">Pedidos</span>
+            </button>
+            <div class="cart-icon">
+                <span id="cart-counter">0</span>
+                <button id="view-cart-btn">🛒 Carrinho</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <aside class="filters">
+            <h2>Filtros</h2>
+            <div class="filter-group">
+                <label for="filter-type">Tipo:</label>
+                <select id="filter-type">
+                    <option value="all">Todos</option>
+                    <option value="eletronicos">Eletrônicos</option>
+                    <option value="roupas">Roupas</option>
+                    <option value="livros">Livros</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-category">Categoria:</label>
+                <select id="filter-category">
+                    <option value="all">Todas</option>
+                    <option value="eletronicos">Smartphones</option>
+                    <option value="camisa">Camisas</option>
+                    <option value="livros">Livros</option>
+                    <option value="jaqueta">Jaquetas</option>
+                    <option value="utilidades">Fone de ouvido</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-price">Preço até:</label>
+                <select id="filter-price">
+                 <option value="all">Todos os preços</option>
+        <option value="0-50">Até R$ 50,00</option>
+        <option value="51-100">R$ 51,00 a R$ 100,00</option>
+        <option value="101-2000">R$ 101,00 a R$ 2000,00</option>
+                </select>
+            </div>
+            <button type="button" id="btn-buscar-filtros" class="btn-primary" style="width: 100%; margin-top: 10px;">
+                🔍 Aplicar Filtros
+            </button>
+        </aside>
+
+        <section class="product-list" id="product-list"></section>
+
+        <div id="cart-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="cart-modal">&times;</span>
+                <h2>Seu Carrinho</h2>
+                <div id="cart-items"></div>
+                <div class="cart-total-container">
+                    <strong>Total: R$ <span id="cart-total">0,00</span></strong>
                 </div>
-            </header>
+                <button id="checkout-btn" class="btn-primary">Comprar</button>
+            </div>
+        </div>
 
-            <main>
-                <aside class="filters">
-                    <h2>Filtros</h2>
-                    <div class="filter-group">
-                        <label for="filter-type">Tipo:</label>
-                        <select id="filter-type">
-                            <option value="all">Todos</option>
-                            <option value="eletronicos">Eletrônicos</option>
-                            <option value="roupas">Roupas</option>
-                            <option value="livros">Livros</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="filter-category">Categoria:</label>
-                        <select id="filter-category">
-                            <option value="all">Todas</option>
-                            <option value="eletronicos">Smartphones</option>
-                            <option value="camisa">Camisas</option>
-                            <option value="livros">Livros</option>
-                            <option value="jaqueta">Jaquetas</option>
-                            <option value="utilidades">Fone de ouvido</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="filter-price">Preço até:</label>
-                        <select id="filter-price">
-                            </select>
-                    </div>
-                </aside>
+        <div id="login-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="login-modal">&times;</span>
+                <h2>Acesse sua Conta</h2>
+                <form id="login-form">
+                    <input type="email" id="login-email" placeholder="E-mail" required>
+                    <input type="password" id="login-password" placeholder="Senha" required>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                    <p>Não tem conta? <a href="#" id="go-to-register">Cadastre-se aqui</a></p>
+                </form>
+            </div>
+        </div>
 
-                <section class="product-list" id="product-list">
-                </section>
+        <div id="register-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="register-modal">&times;</span>
+                <h2>Criar Nova Conta</h2>
+                <form id="register-form">
+                    <input type="text" id="reg-nome" placeholder="Nome Completo" required>
+                    <input type="text" id="reg-cpf" placeholder="CPF" required>
+                    <input type="text" id="reg-tel" placeholder="Telefone" required>
+                    <input type="text" id="reg-end" placeholder="Endereço" required>
+                    <input type="text" id="reg-numero_casa" placeholder="Número da Casa" required>
+                    <input type="text" id="reg-cep" placeholder="CEP" required>
+                    <input type="email" id="reg-email" placeholder="E-mail" required>
+                    <input type="password" id="reg-senha" placeholder="Crie uma Senha" required>
+                    <button type="submit" class="btn-primary">Finalizar Cadastro</button>
+                </form>
+            </div>
+        </div>
 
-                <div id="cart-modal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-btn">&times;</span>
-                        <h2>Seu Carrinho</h2>
-                        <div id="cart-items">
-                        </div>
-                        <div id="cart-summary">
-                            <p>Total: R$ <span id="cart-total">0.00</span></p>
-                            <button id="checkout-btn">Comprar</button>
-                        </div>
+        <div id="checkout-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="checkout-modal">&times;</span>
+                <h2>Finalizar Compra</h2>
+                <form id="checkout-form">
+                    <div id="checkout-summary-details">
+                        <div class="summary-line"><span>Subtotal:</span> <span id="checkout-subtotal">R$ 0,00</span></div>
+                        <div class="summary-line"><span>Frete:</span> <span id="checkout-shipping">R$ 0,00</span></div>
+                        <div class="summary-line total-line"><span>Total:</span> <span id="checkout-total">R$ 0,00</span></div>
                     </div>
+                    <hr>
+                    <h3>Método de Pagamento</h3>
+                    <div class="payment-options">
+                        <label><input type="radio" name="payment-method" value="pix" checked> Pix (Frete Grátis)</label><br>
+                        <label><input type="radio" name="payment-method" value="cartao"> Cartão de Crédito</label>
+                    </div>
+                    <div id="credit-card-fields" class="hidden">
+                        <input type="text" id="card-number" placeholder="0000 0000 0000 0000">
+                        <select id="installments"></select>
+                    </div>
+                    <div id="pix-fields" class="hidden"></div>
+                    <button type="submit" id="pay-now-btn" class="btn-primary" style="width: 100%; margin-top: 20px;">Finalizar Pedido</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="orders-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="orders-modal">&times;</span>
+                <h2>Meus Pedidos </h2>
+                <div id="orders-list">
+                    <p>Carregando histórico...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="order-confirm-modal" class="modal">
+            <div class="modal-content" style="text-align: center;">
+                <span class="close-btn" data-modal="order-confirm-modal">&times;</span>
+                <h2 style="color: #28a745;">🎉 Pedido Realizado!</h2>
+                <div id="order-details"></div>
+                <button onclick="location.reload()" class="btn-primary">Voltar ao Início</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Polly e-commerce</h3>
+                <p>Levando o melhor até você com segurança e rapidez.</p>
+            </div>
+               <div class="footer-section">
+
+                <h4>Redes Sociais</h4>
+
+                <div class="social-icons">
+
+                    <a href="#" class="social-link">📸 Instagram</a>
+
+                    <a href="#" class="social-link">💬 WhatsApp</a>
+
                 </div>
 
-                <div id="checkout-modal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-btn">&times;</span>
-                        <h2>Finalizar Compra</h2>
-                        <form id="checkout-form">
-                            <label for="nome">Nome Completo:</label>
-                            <input type="text" id="nome" name="nome" required>
+            </div>
+            <div class="footer-section">
+                <h4>Contato</h4>
+                <p>📧 contato@pollystore.com</p>
+                <p>📍 Mauá, São Paulo</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Polly e-commerce - Todos os direitos reservados.
+        </div>
+    </footer>
 
-                            <label for="email">E-mail:</label>
-                            <input type="email" id="email" name="email" required>
-                            
-                            <label for="cpf">CPF:</label>
-                            <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00">
-
-                            <label for="telefone">Telefone:</label>
-                            <input type="text" id="telefone" name="telefone" required placeholder="(DD) 90000-0000">
-
-                            <label for="endereco">Endereço:</label>
-                            <input type="text" id="endereco" name="endereco" required>
-                            
-                            <label for="cep">CEP:</label>
-                            <input type="number" id="cep" name="cep" required placeholder="00000000">
-
-                            <h3>Método de Pagamento</h3>
-                            <div class="payment-methods">
-                                <input type="radio" id="credit-card" name="payment-method" value="credit-card" checked>
-                                <label for="credit-card">Cartão de Crédito</label>
-                                <input type="radio" id="boleto" name="payment-method" value="boleto">
-                                <label for="boleto">Boleto</label>
-                                <input type="radio" id="pix" name="payment-method" value="pix">
-                                <label for="pix">Pix</label>
-                            </div>
-
-                            <div id="credit-card-fields">
-                                <label for="card-number">Número do Cartão:</label>
-                                <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" required>
-                                <p class="card-brand-info" id="card-brand-info"></p>
-                                
-                                <label for="security-code">Código de Segurança (CVV):</label>
-                                <input type="text" id="security-code" maxlength="3" required placeholder="XXX">
-                            </div>
-
-                            <div id="boleto-fields" class="hidden">
-                                <p>Ao clicar em "Pagar Agora", o boleto será gerado.</p>
-                            </div>
-                            
-                            <div id="pix-fields" class="hidden">
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/QR_Code_2.svg" alt="QR Code Pix" id="pix-qrcode-img">
-                                    <p class="pix-info">Válido até 24 horas.</p>
-                            </div>
-                            
-                            <div id="checkout-summary-details">
-                                <div class="summary-line">
-                                    <span>Subtotal:</span>
-                                    <span id="checkout-subtotal">R$ 0,00</span>
-                                </div>
-                                <div class="summary-line">
-                                    <span>Frete:</span>
-                                    <span id="checkout-shipping">R$ 0,00</span>
-                                </div>
-                                <div class="coupon-section">
-                                    <input type="text" id="coupon-input" placeholder="Digite seu cupom">
-                                    <button type="button" id="apply-coupon-btn">Aplicar</button>
-                                </div>
-                                <div class="summary-line" id="discount-line" style="display: none;">
-                                    <span>Desconto:</span>
-                                    <span id="checkout-discount">- R$ 0,00</span>
-                                </div>
-                                <div class="summary-line total-line">
-                                    <span>Total:</span>
-                                    <span id="checkout-total">R$ 0,00</span>
-                                </div>
-                            </div>
-
-                            <button type="submit" id="pay-now-btn">Finalizar pedido</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div id="order-confirm-modal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-btn">&times;</span>
-                        <h2>Pedido Finalizado!</h2>
-                        <p>Obrigado por sua compra. Seu pedido foi enviado com sucesso.</p>
-                        <div id="order-details">
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="tracking-modal" class="modal">
-                    <div class="modal-content">
-                        <span class="close-btn">&times;</span>
-                        <h2>Detalhes do Pedido</h2>
-                        <div id="tracking-details">
-                            </div>
-                    </div>
-                </div>
-
-            </main>
-
-            <script src="projetoscript.js"></script>
-        </body>
-        </html>
+    <script src="funcoes.js"></script>
+</body>
+</html>
