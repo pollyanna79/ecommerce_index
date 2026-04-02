@@ -317,3 +317,16 @@ footer {
 }
 
 .hidden { display: none !important; }
+.status-msg {
+    min-height: 20px; /* Garante que o layout não "pule" quando a mensagem aparecer */
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.status-msg p {
+    margin: 0;
+    padding: 5px;
+    border-radius: 4px;
+}
