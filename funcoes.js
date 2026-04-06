@@ -128,7 +128,10 @@ let produtosExibidos = [];
     // ==========================================
     // 6. CHECKOUT E PAGAMENTO
     // ==========================================
- function atualizarValoresCheckout() {
+
+
+
+function atualizarValoresCheckout() {
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
     const metodo = radioSelecionado ? radioSelecionado.value : 'pix';
@@ -136,12 +139,12 @@ let produtosExibidos = [];
     const frete = metodo === 'pix' ? 0 : 15.00;
     const total = subtotal + frete;
 
-    // Atualiza os elementos na tela
+    // Atualiza os textos de valores
     document.getElementById('checkout-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
     document.getElementById('checkout-shipping').innerText = `R$ ${frete.toFixed(2).replace('.', ',')}`;
     document.getElementById('checkout-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 
-    // Mostra/Esconde campos
+    // Gerenciamento de exibição dos campos
     const cardFields = document.getElementById('credit-card-fields');
     const pixFields = document.getElementById('pix-fields');
     
@@ -151,16 +154,18 @@ let produtosExibidos = [];
     if (metodo === 'cartao') {
         gerarParcelas(total);
     } else if (metodo === 'pix') {
-        pixFields.innerHTML = `<div style="text-align:center;"><p>Escaneie o QR Code:</p>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=PollyStore${total.toFixed(2)}" /></div>`;
+        pixFields.innerHTML = `
+            <div style="text-align:center;">
+                <p>Escaneie o QR Code:</p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=PollyStore${total.toFixed(2)}" />
+            </div>`;
     }
 }
 
-// Função para gerar as parcelas (até 6x sem juros)
 function gerarParcelas(total) {
     const select = document.getElementById('installments');
-    select.innerHTML = ''; // Limpa as opções anteriores
-
+    if (!select) return;
+    select.innerHTML = ''; 
     for (let i = 1; i <= 6; i++) {
         const valorParcela = (total / i).toFixed(2).replace('.', ',');
         const option = document.createElement('option');
@@ -170,38 +175,95 @@ function gerarParcelas(total) {
     }
 }
 
-// Identificador de Bandeira
-document.getElementById('card-number').addEventListener('input', function(e) {
-    let num = e.target.value.replace(/\s/g, ''); // Remove espaços
-    let bandeira = "Cartão";
+// --- LÓGICA DE IDENTIFICAÇÃO DE BANDEIRA E MÁSCARAS ---
+// --- 2. Máscara da Data de Vencimento (MM/AA) com VALIDAÇÃO ---
+document.getElementById('card-expiry')?.addEventListener('blur', function(e) {
+    const valor = e.target.value;
+    if (valor.length === 5) {
+        const [mes, ano] = valor.split('/').map(Number);
+        const agora = new Date();
+        const mesAtual = agora.getMonth() + 1; // Janeiro é 0
+        const anoAtual = parseInt(agora.getFullYear().toString().slice(-2)); // Pega os últimos 2 dígitos (Ex: 26)
+
+        // Validação: Se o ano for menor que o atual OU se for o mesmo ano e o mês já passou
+        if (ano < anoAtual || (ano === anoAtual && mes < mesAtual)) {
+            alert("Cartão vencido! Por favor, verifique a data de validade.");
+            e.target.value = ''; // Limpa o campo
+            e.target.style.borderColor = 'red';
+        } else if (mes < 1 || mes > 12) {
+            alert("Mês inválido!");
+            e.target.value = '';
+            e.target.style.borderColor = 'red';
+        } else {
+            e.target.style.borderColor = '#ccc'; // Data ok
+        }
+    }
+});
+
+// 1. Identificar Bandeira e formatar número
+document.getElementById('card-number')?.addEventListener('input', function(e) {
+    let num = e.target.value.replace(/\s/g, ''); // Remove espaços para validar
+    const imgBandeira = document.getElementById('card-brand-img');
     
-    const cartoes = {
+    const icones = {
+        visa: 'visa.png', // Use um ícone local ou um link válido
+        mastercard: 'mastercard.png',
+        amex: 'amex.png', // Link corrigido
+        elo: 'elo.png',
+        hipercard: 'hipercard.png',
+        diners: 'diners.png'
+    };
+
+    const regras = {
         visa: /^4/,
         mastercard: /^5[1-5]/,
         amex: /^3[47]/,
-        elo: /^((433604)|(438935)|(451416)|(457393)|(457631)|(457632)|(504175)|(627780)|(636297)|(636368)|(650031))/ ,
+        elo: /^((433604)|(438935)|(451416)|(457393)|(457631)|(457632)|(504175)|(627780)|(636297)|(636368)|(650031))/,
         hipercard: /^(606282|3841)/,
         diners: /^3(?:0[0-5]|[68][0-9])/
     };
 
-    for (let k in cartoes) {
-        if (cartoes[k].test(num)) {
-            bandeira = k.toUpperCase();
+    let achou = false;
+    for (let k in regras) {
+        if (regras[k].test(num)) {
+            if (imgBandeira) {
+                imgBandeira.src = icones[k];
+                imgBandeira.style.display = 'block';
+            }
+            achou = true;
             break;
         }
     }
 
-    document.getElementById('card-brand-display').innerText = num.length > 0 ? `Bandeira: ${bandeira}` : '';
+    if (!achou && imgBandeira) {
+        imgBandeira.style.display = 'none';
+    }
+
+    // Aplica a máscara de espaços (0000 0000 0000 0000)
+    e.target.value = num.replace(/(\d{4})(?=\d)/g, '$1 ');
 });
-    function abrirCheckout() {
-        if (!usuarioLogadoId) {
-            alert("Faça login primeiro!");
-            loginModal.style.display = 'flex';
-            return;
-        }
+
+// Máscara da Data enquanto digita 
+document.getElementById('card-expiry')?.addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, ''); 
+    if (v.length >= 2) {
+        e.target.value = v.substring(0, 2) + '/' + v.substring(2, 4);
+    } else {
+        e.target.value = v;
+    }
+});
+
+function abrirCheckout() {
+    if (!usuarioLogadoId) {
+        alert("Faça login primeiro!");
+        if (loginModal) loginModal.style.display = 'flex';
+        return;
+    }
+    if (checkoutModal) {
         checkoutModal.style.display = 'flex';
         atualizarValoresCheckout();
     }
+}
 
     document.getElementById('checkout-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();

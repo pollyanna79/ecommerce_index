@@ -23,149 +23,148 @@
                 </div>
             </div>
         </header>
-
-        <main>
-            <aside class="filters">
-                <h2>Filtros</h2>
-                <div class="filter-group">
-                    <label for="filter-type">Tipo:</label>
-                    <select id="filter-type">
-                        <option value="all">Todos</option>
-                        <option value="eletronicos">Eletrônicos</option>
-                        <option value="roupas">Roupas</option>
-                        <option value="livros">Livros</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="filter-category">Categoria:</label>
-                    <select id="filter-category">
-                        <option value="all">Todas</option>
-                        <option value="eletronicos">Smartphones</option>
-                        <option value="camisa">Camisas</option>
-                        <option value="livros">Livros</option>
-                        <option value="jaqueta">Jaquetas</option>
-                        <option value="utilidades">Fone de ouvido</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="filter-price">Preço até:</label>
-                    <select id="filter-price">
+<main>
+        <aside class="filters">
+            <h2>Filtros</h2>
+            <div class="filter-group">
+                <label for="filter-type">Tipo:</label>
+                <select id="filter-type">
+                    <option value="all">Todos</option>
+                    <option value="eletronicos">Eletrônicos</option>
+                    <option value="roupas">Roupas</option>
+                    <option value="livros">Livros</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-category">Categoria:</label>
+                <select id="filter-category">
+                    <option value="all">Todas</option>
+                    <option value="eletronicos">Smartphones</option>
+                    <option value="camisa">Camisas</option>
+                    <option value="livros">Livros</option>
+                    <option value="jaqueta">Jaquetas</option>
+                    <option value="utilidades">Fone de ouvido</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-price">Preço até:</label>
+                <select id="filter-price">
                     <option value="all">Todos os preços</option>
-            <option value="0-50">Até R$ 50,00</option>
-            <option value="51-100">R$ 51,00 a R$ 100,00</option>
-            <option value="101-2000">R$ 101,00 a R$ 2000,00</option>
-                    </select>
-                </div>
-                <button type="button" id="btn-buscar-filtros" class="btn-primary" style="width: 100%; margin-top: 10px;">
-                    🔍 Aplicar Filtros
-                </button>
-            </aside>
-
-            <section class="product-list" id="product-list"></section>
-
-            <div id="cart-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-btn" data-modal="cart-modal">&times;</span>
-                    <h2>Seu Carrinho</h2>
-                    <div id="cart-items"></div>
-                    <div class="cart-total-container">
-                        <strong>Total: R$ <span id="cart-total">0,00</span></strong>
-                    </div>
-                    <button id="checkout-btn" class="btn-primary">Comprar</button>
-                </div>
+                    <option value="0-50">Até R$ 50,00</option>
+                    <option value="51-100">R$ 51,00 a R$ 100,00</option>
+                    <option value="101-2000">R$ 101,00 a R$ 2000,00</option>
+                </select>
             </div>
+            <button type="button" id="btn-buscar-filtros" class="btn-primary" style="width: 100%; margin-top: 10px;">
+                🔍 Aplicar Filtros
+            </button>
+        </aside>
 
-            <div id="login-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-btn" data-modal="login-modal">&times;</span>
-                    <h2>Acesse sua Conta</h2>
-                    <h2>Login</h2>
-                    <form id="login-form">
-                        <input type="email" id="login-email" placeholder="E-mail" required>
-                        <input type="password" id="login-password" placeholder="Senha" required>
-                        <div id="login-status" class="status-msg"></div>
-                        <button type="submit" class="btn-primary">Entrar</button>
-                        <p>Não tem conta? <a href="#" id="go-to-register">Cadastre-se aqui</a></p>
-                    </form>
+        <section class="product-list" id="product-list"></section>
+
+        <div id="cart-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="cart-modal">&times;</span>
+                <h2>Seu Carrinho</h2>
+                <div id="cart-items"></div>
+                <div class="cart-total-container">
+                    <strong>Total: R$ <span id="cart-total">0,00</span></strong>
                 </div>
+                <button id="checkout-btn" class="btn-primary">Comprar</button>
             </div>
-
-            <div id="register-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-btn" data-modal="register-modal">&times;</span>
-                    <h2>Criar Nova Conta</h2>
-                    <form id="register-form">
-                        <div id="register-status" class="status-msg"></div>
-                        <input type="text" id="reg-nome" placeholder="Nome Completo" required>
-                        <input type="text" id="reg-cpf" placeholder="CPF" required>
-                        <input type="text" id="reg-tel" placeholder="Telefone" required>
-                        <input type="text" id="reg-end" placeholder="Endereço" required>
-                        <input type="text" id="reg-numero_casa" placeholder="Número da Casa" required>
-                        <input type="text" id="reg-cep" placeholder="CEP" required>
-                        <input type="email" id="reg-email" placeholder="E-mail" required>
-                        <input type="password" id="reg-senha" placeholder="Crie uma Senha" required>
-                        <button type="submit" class="btn-primary">Finalizar Cadastro</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="checkout-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-btn" data-modal="checkout-modal">&times;</span>
-                    <h2>Finalizar Compra</h2>
-                   
-               <form id="checkout-form">
-    <div id="checkout-summary-details">
-        <div class="summary-line"><span>Subtotal:</span> <span id="checkout-subtotal">R$ 0,00</span></div>
-        <div class="summary-line"><span>Frete:</span> <span id="checkout-shipping">R$ 0,00</span></div>
-        <div class="summary-line total-line"><span>Total:</span> <span id="checkout-total">R$ 0,00</span></div>
-    </div>
-    <hr>
-    
-    <h3>Método de Pagamento</h3>
-    <div class="payment-options">
-        <label><input type="radio" name="payment-method" value="pix" checked onchange="atualizarValoresCheckout()"> Pix (Frete Grátis)</label><br>
-        <label><input type="radio" name="payment-method" value="cartao" onchange="atualizarValoresCheckout()"> Cartão de Crédito</label>
-    </div>
-
-    <div id="credit-card-fields" class="hidden" style="margin-top: 15px;">
-        <div style="margin-bottom: 10px;">
-            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
-            <small id="card-brand-display" style="display: block; color: #666; font-weight: bold;"></small>
         </div>
-        
-        <label for="installments">Parcelamento:</label>
-        <select id="installments" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
-    </div>
 
-    <div id="pix-fields" class="hidden"></div>
-    
-    <button type="submit" id="pay-now-btn" class="btn-primary" style="width: 100%; margin-top: 20px;">Finalizar Pedido</button>
-</form>
-                </div>
+        <div id="login-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="login-modal">&times;</span>
+                <h2>Login</h2>
+                <form id="login-form">
+                    <input type="email" id="login-email" placeholder="E-mail" required>
+                    <input type="password" id="login-password" placeholder="Senha" required>
+                    <div id="login-status" class="status-msg"></div>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                    <p>Não tem conta? <a href="#" id="go-to-register">Cadastre-se aqui</a></p>
+                </form>
             </div>
+        </div>
 
-            <div id="orders-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-btn" data-modal="orders-modal">&times;</span>
-                    <h2>Meus Pedidos </h2>
-                    <div id="orders-list">
-                        <p>Carregando histórico...</p>
+        <div id="register-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="register-modal">&times;</span>
+                <h2>Criar Nova Conta</h2>
+                <form id="register-form">
+                    <div id="register-status" class="status-msg"></div>
+                    <input type="text" id="reg-nome" placeholder="Nome Completo" required>
+                    <input type="text" id="reg-cpf" placeholder="CPF" required>
+                    <input type="text" id="reg-tel" placeholder="Telefone" required>
+                    <input type="text" id="reg-end" placeholder="Endereço" required>
+                    <input type="text" id="reg-numero_casa" placeholder="Número da Casa" required>
+                    <input type="text" id="reg-cep" placeholder="CEP" required>
+                    <input type="email" id="reg-email" placeholder="E-mail" required>
+                    <input type="password" id="reg-senha" placeholder="Crie uma Senha" required>
+                    <button type="submit" class="btn-primary">Finalizar Cadastro</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="checkout-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="checkout-modal">&times;</span>
+                <h2>Finalizar Compra</h2>
+                <form id="checkout-form">
+                    <div id="checkout-summary-details">
+                        <div class="summary-line"><span>Subtotal:</span> <span id="checkout-subtotal">R$ 0,00</span></div>
+                        <div class="summary-line"><span>Frete:</span> <span id="checkout-shipping">R$ 0,00</span></div>
+                        <div class="summary-line total-line"><span>Total:</span> <span id="checkout-total">R$ 0,00</span></div>
                     </div>
-                </div>
-            </div>
+                    <hr>
+                    <h3>Método de Pagamento</h3>
+                    <div class="payment-options">
+                        <label><input type="radio" name="payment-method" value="pix" checked onchange="atualizarValoresCheckout()"> Pix (Frete Grátis)</label><br>
+                        <label><input type="radio" name="payment-method" value="cartao" onchange="atualizarValoresCheckout()"> Cartão de Crédito</label>
+                    </div>
 
-            <div id="order-confirm-modal" class="modal">
-                <div class="modal-content" style="text-align: center;">
-                    <span class="close-btn" data-modal="order-confirm-modal">&times;</span>
-                    <h2 style="color: #28a745;">🎉 Pedido Realizado!</h2>
-                    <div id="order-details"></div>
-                    <div id="order-confirm-content"></div>
-                    <button onclick="location.reload()" class="btn-primary">Voltar ao Início</button>
-                </div>
-            </div>
+                    <div id="credit-card-fields" class="hidden" style="margin-top: 15px;">
+                        <div style="position: relative; margin-bottom: 10px;">
+                            <input type="text" id="card-number" placeholder="Número do Cartão" maxlength="19" style="width: 100%; padding-right: 40px;">
+                            <div id="card-brand-container" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                                <img id="card-brand-img" src="" style="height: 20px; display: none;">
+                            </div>
+                        </div>
 
-        </main>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5" style="width: 50%;">
+                            <input type="text" id="card-cvv" placeholder="CVV" maxlength="4" style="width: 50%;">
+                        </div>
+                        
+                        <label for="installments">Parcelamento:</label>
+                        <select id="installments" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
+                    </div>
+
+                    <div id="pix-fields" class="hidden"></div>
+                    <button type="submit" id="pay-now-btn" class="btn-primary" style="width: 100%; margin-top: 20px;">Finalizar Pedido</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="orders-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="orders-modal">&times;</span>
+                <h2>Meus Pedidos</h2>
+                <div id="orders-list"><p>Carregando histórico...</p></div>
+            </div>
+        </div>
+
+        <div id="order-confirm-modal" class="modal">
+            <div class="modal-content" style="text-align: center;">
+                <span class="close-btn" data-modal="order-confirm-modal">&times;</span>
+                <h2 style="color: #28a745;">🎉 Pedido Realizado!</h2>
+                <div id="order-confirm-content"></div>
+                <button onclick="location.reload()" class="btn-primary">Voltar ao Início</button>
+            </div>
+        </div>
+
+    </main>
 
         <footer>
             <div class="footer-content">
