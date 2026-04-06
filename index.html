@@ -114,26 +114,34 @@
                     <span class="close-btn" data-modal="checkout-modal">&times;</span>
                     <h2>Finalizar Compra</h2>
                    
-                    <form id="checkout-form">
-                    <div id="checkout-status" class="status-msg"></div>
-                        <div id="checkout-summary-details">
-                            <div class="summary-line"><span>Subtotal:</span> <span id="checkout-subtotal">R$ 0,00</span></div>
-                            <div class="summary-line"><span>Frete:</span> <span id="checkout-shipping">R$ 0,00</span></div>
-                            <div class="summary-line total-line"><span>Total:</span> <span id="checkout-total">R$ 0,00</span></div>
-                        </div>
-                        <hr>
-                        <h3>Método de Pagamento</h3>
-                        <div class="payment-options">
-                            <label><input type="radio" name="payment-method" value="pix" checked onchange="atualizarValoresCheckout()"> Pix (Frete Grátis)</label><br>
-                            <label><input type="radio" name="payment-method" value="cartao" onchange="atualizarValoresCheckout()"> Cartão de Crédito</label>
-                        </div>
-                        <div id="credit-card-fields" class="hidden">
-                            <input type="text" id="card-number" placeholder="0000 0000 0000 0000">
-                            <select id="installments"></select>
-                        </div>
-                        <div id="pix-fields" class="hidden"></div>
-                        <button type="submit" id="pay-now-btn" class="btn-primary" style="width: 100%; margin-top: 20px;">Finalizar Pedido</button>
-                    </form>
+               <form id="checkout-form">
+    <div id="checkout-summary-details">
+        <div class="summary-line"><span>Subtotal:</span> <span id="checkout-subtotal">R$ 0,00</span></div>
+        <div class="summary-line"><span>Frete:</span> <span id="checkout-shipping">R$ 0,00</span></div>
+        <div class="summary-line total-line"><span>Total:</span> <span id="checkout-total">R$ 0,00</span></div>
+    </div>
+    <hr>
+    
+    <h3>Método de Pagamento</h3>
+    <div class="payment-options">
+        <label><input type="radio" name="payment-method" value="pix" checked onchange="atualizarValoresCheckout()"> Pix (Frete Grátis)</label><br>
+        <label><input type="radio" name="payment-method" value="cartao" onchange="atualizarValoresCheckout()"> Cartão de Crédito</label>
+    </div>
+
+    <div id="credit-card-fields" class="hidden" style="margin-top: 15px;">
+        <div style="margin-bottom: 10px;">
+            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
+            <small id="card-brand-display" style="display: block; color: #666; font-weight: bold;"></small>
+        </div>
+        
+        <label for="installments">Parcelamento:</label>
+        <select id="installments" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
+    </div>
+
+    <div id="pix-fields" class="hidden"></div>
+    
+    <button type="submit" id="pay-now-btn" class="btn-primary" style="width: 100%; margin-top: 20px;">Finalizar Pedido</button>
+</form>
                 </div>
             </div>
 

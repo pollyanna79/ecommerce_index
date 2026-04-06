@@ -128,30 +128,71 @@ let produtosExibidos = [];
     // ==========================================
     // 6. CHECKOUT E PAGAMENTO
     // ==========================================
-    function atualizarValoresCheckout() {
-        const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
-        const metodo = radioSelecionado ? radioSelecionado.value : 'pix';
-        
-        const frete = metodo === 'pix' ? 0 : 15.00;
-        const total = subtotal + frete;
+ function atualizarValoresCheckout() {
+    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
+    const metodo = radioSelecionado ? radioSelecionado.value : 'pix';
+    
+    const frete = metodo === 'pix' ? 0 : 15.00;
+    const total = subtotal + frete;
 
-        // Atualiza os elementos na tela do checkout
-        document.getElementById('checkout-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
-        document.getElementById('checkout-shipping').innerText = `R$ ${frete.toFixed(2).replace('.', ',')}`;
-        document.getElementById('checkout-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    // Atualiza os elementos na tela
+    document.getElementById('checkout-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    document.getElementById('checkout-shipping').innerText = `R$ ${frete.toFixed(2).replace('.', ',')}`;
+    document.getElementById('checkout-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 
-        // Mostra/Esconde campos
-        document.getElementById('credit-card-fields').classList.toggle('hidden', metodo !== 'cartao');
-        const pixFields = document.getElementById('pix-fields');
-        pixFields.classList.toggle('hidden', metodo !== 'pix');
+    // Mostra/Esconde campos
+    const cardFields = document.getElementById('credit-card-fields');
+    const pixFields = document.getElementById('pix-fields');
+    
+    cardFields.classList.toggle('hidden', metodo !== 'cartao');
+    pixFields.classList.toggle('hidden', metodo !== 'pix');
 
-        if (metodo === 'pix') {
-            pixFields.innerHTML = `<div style="text-align:center;"><p>Escaneie o QR Code:</p>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=PollyStore${total.toFixed(2)}" /></div>`;
+    if (metodo === 'cartao') {
+        gerarParcelas(total);
+    } else if (metodo === 'pix') {
+        pixFields.innerHTML = `<div style="text-align:center;"><p>Escaneie o QR Code:</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=PollyStore${total.toFixed(2)}" /></div>`;
+    }
+}
+
+// Função para gerar as parcelas (até 6x sem juros)
+function gerarParcelas(total) {
+    const select = document.getElementById('installments');
+    select.innerHTML = ''; // Limpa as opções anteriores
+
+    for (let i = 1; i <= 6; i++) {
+        const valorParcela = (total / i).toFixed(2).replace('.', ',');
+        const option = document.createElement('option');
+        option.value = i;
+        option.text = `${i}x de R$ ${valorParcela} sem juros`;
+        select.appendChild(option);
+    }
+}
+
+// Identificador de Bandeira
+document.getElementById('card-number').addEventListener('input', function(e) {
+    let num = e.target.value.replace(/\s/g, ''); // Remove espaços
+    let bandeira = "Cartão";
+    
+    const cartoes = {
+        visa: /^4/,
+        mastercard: /^5[1-5]/,
+        amex: /^3[47]/,
+        elo: /^((433604)|(438935)|(451416)|(457393)|(457631)|(457632)|(504175)|(627780)|(636297)|(636368)|(650031))/ ,
+        hipercard: /^(606282|3841)/,
+        diners: /^3(?:0[0-5]|[68][0-9])/
+    };
+
+    for (let k in cartoes) {
+        if (cartoes[k].test(num)) {
+            bandeira = k.toUpperCase();
+            break;
         }
     }
 
+    document.getElementById('card-brand-display').innerText = num.length > 0 ? `Bandeira: ${bandeira}` : '';
+});
     function abrirCheckout() {
         if (!usuarioLogadoId) {
             alert("Faça login primeiro!");
@@ -189,79 +230,129 @@ let produtosExibidos = [];
         }
     });
 
-    // ==========================================
-    // 7. HISTÓRICO DE PEDIDOS
-    // ==========================================
-    async function carregarHistoricoPedidos() {
+
+// ==========================================
+// 7. HISTÓRICO DE PEDIDOS 
+// ==========================================
+async function carregarHistoricoPedidos() {
+    // 1. Verificação de Segurança
     if (!usuarioLogadoId) {
-        loginModal.style.display = 'flex';
+        console.error("Usuário não identificado.");
+        if (typeof loginModal !== 'undefined') loginModal.style.display = 'flex';
         return;
     }
-    
-    const statusText = document.getElementById('order-status-text');
-    const badge = document.getElementById('order-count-badge');
-    
-    ordersModal.style.display = 'flex';
-    ordersList.innerHTML = '<p style="text-align:center;">Buscando seus pacotes... 🚚</p>';
 
-    try { 
+    const ordersList = document.getElementById('orders-list');
+    const ordersModal = document.getElementById('orders-modal');
+
+    // 2. Interface: Abrir modal e mostrar carregamento
+    if (ordersModal) ordersModal.style.display = 'flex';
+    if (ordersList) ordersList.innerHTML = '<p style="text-align:center;">Buscando seus pacotes... 🚚</p>';
+
+    try {
+        // 3. Chamada ao Banco de Dados (Usando suas colunas reais)
         const { data, error } = await _supabase
-            .from('pedidosecommerce')   
+            .from('pedidosecommerce')
             .select('*')
             .eq('id_cliente', usuarioLogadoId)
-            .order('id', { ascending: false });
+            .order('data_compra', { ascending: false });
 
         if (error) throw error;
 
+        // 4. Renderização dos Dados
         if (data && data.length > 0) {
-            statusText.innerText = "Meus Pedidos";
-            if(badge) {
-                badge.innerText = data.length;
-                badge.style.display = 'inline-block';
-            }
-            ordersList.innerHTML = data.map(p => `
-                <div class="order-card" style="border-bottom: 1px solid #eee; padding: 10px;">
-                    <strong>#${p.id_pedido || p.id}</strong> - <span style="color: green;">${p.status}</span>
-                    <p style="font-size: 0.9em;">${p.itens_compra}</p>
-                    <p>Total: R$ ${parseFloat(p.valor_total).toFixed(2).replace('.',',')}</p>
-                </div>
-            `).join('');
+            ordersList.innerHTML = data.map(p => {
+                // Formatação do valor (R$)
+                const valor = p.valor_total ? parseFloat(p.valor_total) : 0;
+                const valorFormatado = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                // Formatação da Data
+                const dataFormatada = p.data_compra 
+                    ? new Date(p.data_compra).toLocaleDateString('pt-BR') 
+                    : 'Data indisp.';
+
+                return `
+                    <div class="order-card" style="border-bottom: 1px solid #eee; padding: 15px; text-align: left; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong>Pedido #${p.id_pedido}</strong>
+                            <span style="background: #e1f5fe; color: #0288d1; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold;">
+                                ${p.status ? p.status.toUpperCase() : 'PROCESSANDO'}
+                            </span>
+                        </div>
+                        <p style="font-size: 0.9em; color: #666; margin: 8px 0;">
+                            <strong>Itens:</strong> ${p.itens_compra || 'Não informado'}<br>
+                            <strong>Qtd:</strong> ${p.quantidade || 1}
+                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <small style="color: #999;">${dataFormatada}</small>
+                            <div style="font-weight: bold; color: #333;">Total: ${valorFormatado}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
         } else {
-            ordersList.innerHTML = '<p style="text-align:center;">Nenhum pedido encontrado.</p>';
+            ordersList.innerHTML = `
+                <div style="text-align:center; padding: 20px;">
+                    <p>Você ainda não realizou nenhum pedido.</p>
+                    <small style="color: #ccc;">ID: ${usuarioLogadoId}</small>
+                </div>`;
         }
     } catch (err) {
-        console.error(err);
-        ordersList.innerHTML = '<p>Erro ao carregar histórico.</p>';
+        console.error('Erro ao buscar histórico:', err);
+        if (ordersList) ordersList.innerHTML = '<p style="color: red; text-align: center;">Erro técnico ao carregar histórico.</p>';
     }
-} 
-    // ==========================================
-    // 8. EVENTOS GERAIS
-    // ==========================================
-    productList?.addEventListener('click', (e) => {
-        if (e.target.classList.contains('add-to-cart-btn')) {
-            const id = parseInt(e.target.dataset.id);
-            const p = products.find(prod => prod.id === id);
-            if (p) {
-                const existe = cart.find(i => i.id === id);
-                if (existe) existe.quantity++;
-                else cart.push({ ...p, quantity: 1 });
-                updateCartCounter();
-                alert(`${p.name} adicionado!`);
+}
+
+// ==========================================
+// 8. EVENTOS GERAIS
+// ==========================================
+
+// Evento de Adicionar ao Carrinho
+productList?.addEventListener('click', (e) => {
+    if (e.target.classList.contains('add-to-cart-btn')) {
+        const id = parseInt(e.target.dataset.id);
+        const p = products.find(prod => prod.id === id);
+        if (p) {
+            const existe = cart.find(i => i.id === id);
+            if (existe) {
+                existe.quantity++;
+            } else {
+                cart.push({ ...p, quantity: 1 });
             }
+            updateCartCounter();
+            alert(`${p.name} adicionado ao carrinho!`);
         }
-    });
-
-trackingBtn?.addEventListener('click', carregarHistoricoPedidos);
-viewCartBtn?.addEventListener('click', () => { cartModal.style.display = 'flex'; });
-checkoutBtn?.addEventListener('click', () => { cartModal.style.display = 'none'; abrirCheckout(); });
-document.getElementById('go-to-register')?.addEventListener('click', () => { loginModal.style.display = 'none'; registerModal.style.display = 'flex'; });
-
-document.querySelectorAll('.close-btn').forEach(b => {
-    b.onclick = () => b.closest('.modal').style.display = 'none';
+    }
 });
 
-// Inicialização
+// Eventos de Botões e Modais
+trackingBtn?.addEventListener('click', carregarHistoricoPedidos);
+
+viewCartBtn?.addEventListener('click', () => { 
+    if (typeof cartModal !== 'undefined') cartModal.style.display = 'flex'; 
+});
+
+checkoutBtn?.addEventListener('click', () => { 
+    if (typeof cartModal !== 'undefined') cartModal.style.display = 'none'; 
+    if (typeof abrirCheckout === 'function') abrirCheckout(); 
+});
+
+document.getElementById('go-to-register')?.addEventListener('click', () => { 
+    if (typeof loginModal !== 'undefined') loginModal.style.display = 'none'; 
+    if (typeof registerModal !== 'undefined') registerModal.style.display = 'flex'; 
+});
+
+// Fechar Modais
+document.querySelectorAll('.close-btn').forEach(b => {
+    b.onclick = () => {
+        const modal = b.closest('.modal');
+        if (modal) modal.style.display = 'none';
+    };
+});
+
+// Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-    renderizarProdutos(products);
-    updateCartCounter();
+    if (typeof renderizarProdutos === 'function') renderizarProdutos(products);
+    if (typeof updateCartCounter === 'function') updateCartCounter();
 });
