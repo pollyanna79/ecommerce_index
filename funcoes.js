@@ -106,27 +106,39 @@ function updateCartCounter() {
 // ==========================================
 // 5. USUÁRIO (LOGIN/CADASTRO)
 // ==========================================
-document.getElementById('login-form') ? .addEventListener('submit', async(e) => {
+document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const statusDiv = document.getElementById('login-status');
     const email = document.getElementById('login-email').value;
     const senha = document.getElementById('login-password').value;
 
     try {
-        const { data } = await _supabase.from('siteecommerce').select('*').eq('email', email).eq('senha', senha).maybeSingle();
+        // Dica: Garanta que 'siteecommerce' é o nome exato da tabela no Supabase
+        const { data, error } = await _supabase
+            .from('siteecommerce')
+            .select('*')
+            .eq('email', email)
+            .eq('senha', senha)
+            .maybeSingle();
+
+        if (error) throw error; // Lança o erro para o catch caso a requisição falhe
 
         if (data) {
             usuarioLogadoId = data.id;
             dadosCliente = data;
             alert(`Oi ${data.nome}, login feito!`);
             loginModal.style.display = 'none';
+            
             // Atualiza o texto do botão de pedidos
             document.getElementById('order-status-text').innerText = "Meus Pedidos";
             if (cart.length > 0) abrirCheckout();
         } else {
             statusDiv.innerHTML = '<p style="color: red;">E-mail ou senha incorretos.</p>';
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        console.error("Erro na requisição do Supabase:", err); 
+        statusDiv.innerHTML = '<p style="color: red;">Erro ao conectar ao servidor. Tente novamente.</p>';
+    }
 });
 
 // ==========================================
