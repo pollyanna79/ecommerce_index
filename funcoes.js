@@ -40,7 +40,7 @@ const products = [
 // ==========================================
 // 3. LÓGICA DE FILTROS
 // ==========================================
-btnBuscar ? .addEventListener('click', () => {
+btnBuscar ? addEventListener('click', () => {
     const tipo = document.getElementById('filter-type').value;
     const categoria = document.getElementById('filter-category').value;
     const precoFaixa = document.getElementById('filter-price').value;
