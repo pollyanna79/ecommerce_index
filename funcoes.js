@@ -1,12 +1,16 @@
+// ==========================================
 // 1. CONFIGURAÇÃO DO SUPABASE
 // ==========================================
 const { SUPABASE_URL, SUPABASE_KEY } = globalThis.APP_CONFIG || {};
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error('Variáveis de ambiente do Supabase não encontradas. Gere env.js a partir de .env');
+    console.warn('Variáveis de ambiente do Supabase não encontradas. Verifique o arquivo env.js.');
 }
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Proteção caso a biblioteca do Supabase falhe ao carregar (por causa do bloqueio de rastreamento do navegador)
+const _supabase = typeof supabase !== 'undefined' && SUPABASE_URL && SUPABASE_KEY
+    ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+    : null;
 
 // ==========================================
 // 2. VARIÁVEIS DE ESTADO
@@ -52,19 +56,17 @@ if (btnBuscar) {
     });
 }
 
-async function aplicarFiltrosGlobais(tipo, categoria, faixaPreco) {
-    productList.innerHTML = '<p>Buscando ofertas...</p>';
+async function aplicarFiltrosGlobais(tipo, category, faixaPreco) {
+    if (productList) productList.innerHTML = '<p>Buscando ofertas...</p>';
 
-    // Se o seu Supabase não tiver a tabela 'produtos' populada, 
-    // usaremos o array local 'products' para filtrar.
     let filtrados = products;
 
     if (tipo !== 'all') {
         filtrados = filtrados.filter(p => p.type === tipo);
     }
 
-    if (categoria !== 'all') {
-        filtrados = filtrados.filter(p => p.category === categoria);
+    if (category !== 'all') {
+        filtrados = filtrados.filter(p => p.category === category);
     }
 
     if (faixaPreco !== 'all') {
@@ -73,7 +75,7 @@ async function aplicarFiltrosGlobais(tipo, categoria, faixaPreco) {
     }
 
     if (filtrados.length === 0) {
-        productList.innerHTML = '<p>Nenhum produto encontrado. 😕</p>';
+        if (productList) productList.innerHTML = '<p>Nenhum produto encontrado. 😕</p>';
     } else {
         renderizarProdutos(filtrados);
     }
@@ -112,8 +114,12 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     const email = document.getElementById('login-email').value;
     const senha = document.getElementById('login-password').value;
 
+    if (!_supabase) {
+        alert("Erro: Supabase não inicializado corretamente.");
+        return;
+    }
+
     try {
-        // Dica: Garanta que 'siteecommerce' é o nome exato da tabela no Supabase
         const { data, error } = await _supabase
             .from('siteecommerce')
             .select('*')
@@ -121,32 +127,30 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
             .eq('senha', senha)
             .maybeSingle();
 
-        if (error) throw error; // Lança o erro para o catch caso a requisição falhe
+        if (error) throw error;
 
         if (data) {
             usuarioLogadoId = data.id;
             dadosCliente = data;
             alert(`Oi ${data.nome}, login feito!`);
-            loginModal.style.display = 'none';
+            if (loginModal) loginModal.style.display = 'none';
             
-            // Atualiza o texto do botão de pedidos
-            document.getElementById('order-status-text').innerText = "Meus Pedidos";
+            const orderStatusText = document.getElementById('order-status-text');
+            if (orderStatusText) orderStatusText.innerText = "Meus Pedidos";
+            
             if (cart.length > 0) abrirCheckout();
         } else {
-            statusDiv.innerHTML = '<p style="color: red;">E-mail ou senha incorretos.</p>';
+            if (statusDiv) statusDiv.innerHTML = '<p style="color: red;">E-mail ou senha incorretos.</p>';
         }
     } catch (err) { 
         console.error("Erro na requisição do Supabase:", err); 
-        statusDiv.innerHTML = '<p style="color: red;">Erro ao conectar ao servidor. Tente novamente.</p>';
+        if (statusDiv) statusDiv.innerHTML = '<p style="color: red;">Erro ao conectar ao servidor. Tente novamente.</p>';
     }
 });
 
 // ==========================================
 // 6. CHECKOUT E PAGAMENTO
 // ==========================================
-
-
-
 function atualizarValoresCheckout() {
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
@@ -155,26 +159,31 @@ function atualizarValoresCheckout() {
     const frete = metodo === 'pix' ? 0 : 15;
     const total = subtotal + frete;
 
-    // Atualiza os textos de valores
-    document.getElementById('checkout-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
-    document.getElementById('checkout-shipping').innerText = `R$ ${frete.toFixed(2).replace('.', ',')}`;
-    document.getElementById('checkout-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    const subtotalEl = document.getElementById('checkout-subtotal');
+    const shippingEl = document.getElementById('checkout-shipping');
+    const totalEl = document.getElementById('checkout-total');
 
-    // Gerenciamento de exibição dos campos
+    if (subtotalEl) subtotalEl.innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    if (shippingEl) shippingEl.innerText = `R$ ${frete.toFixed(2).replace('.', ',')}`;
+    if (totalEl) totalEl.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+
     const cardFields = document.getElementById('credit-card-fields');
     const pixFields = document.getElementById('pix-fields');
 
-    cardFields.classList.toggle('hidden', metodo !== 'cartao');
-    pixFields.classList.toggle('hidden', metodo !== 'pix');
+    if (cardFields) cardFields.classList.toggle('hidden', metodo !== 'cartao');
+    if (pixFields) {
+        pixFields.classList.toggle('hidden', metodo !== 'pix');
+        if (metodo === 'pix') {
+            pixFields.innerHTML = `
+                <div style="text-align:center;">
+                    <p>Escaneie o QR Code:</p>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=PollyStore${total.toFixed(2)}" />
+                </div>`;
+        }
+    }
 
     if (metodo === 'cartao') {
         gerarParcelas(total);
-    } else if (metodo === 'pix') {
-        pixFields.innerHTML = `
-            <div style="text-align:center;">
-                <p>Escaneie o QR Code:</p>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=PollyStore${total.toFixed(2)}" />
-            </div>`;
     }
 }
 
@@ -191,40 +200,36 @@ function gerarParcelas(total) {
     }
 }
 
-// --- LÓGICA DE IDENTIFICAÇÃO DE BANDEIRA E MÁSCARAS ---
-// --- 2. Máscara da Data de Vencimento (MM/AA) com VALIDAÇÃO ---
-document.getElementById('card-expiry') ? .addEventListener('blur', function(e) {
+document.getElementById('card-expiry')?.addEventListener('blur', function(e) {
     const valor = e.target.value;
     if (valor.length === 5) {
         const [mes, ano] = valor.split('/').map(Number);
         const agora = new Date();
-        const mesAtual = agora.getMonth() + 1; // Janeiro é 0
-        const anoAtual = Number.parseInt(agora.getFullYear().toString().slice(-2)); // Pega os últimos 2 dígitos (Ex: 26)
+        const mesAtual = agora.getMonth() + 1;
+        const anoAtual = Number.parseInt(agora.getFullYear().toString().slice(-2));
 
-        // Validação: Se o ano for menor que o atual OU se for o mesmo ano e o mês já passou
         if (ano < anoAtual || (ano === anoAtual && mes < mesAtual)) {
             alert("Cartão vencido! Por favor, verifique a data de validade.");
-            e.target.value = ''; // Limpa o campo
+            e.target.value = '';
             e.target.style.borderColor = 'red';
         } else if (mes < 1 || mes > 12) {
             alert("Mês inválido!");
             e.target.value = '';
             e.target.style.borderColor = 'red';
         } else {
-            e.target.style.borderColor = '#ccc'; // Data ok
+            e.target.style.borderColor = '#ccc';
         }
     }
 });
 
-// 1. Identificar Bandeira e formatar número
-document.getElementById('card-number') ? .addEventListener('input', function(e) {
-    let num = e.target.value.replace(/\s/g, ''); // Remove espaços para validar
+document.getElementById('card-number')?.addEventListener('input', function(e) {
+    let num = e.target.value.replace(/\s/g, '');
     const imgBandeira = document.getElementById('card-brand-img');
 
     const icones = {
-        visa: 'visa.png', // Use um ícone local ou um link válido
+        visa: 'visa.png',
         mastercard: 'mastercard.png',
-        amex: 'amex.png', // Link corrigido
+        amex: 'amex.png',
         elo: 'elo.png',
         hipercard: 'hipercard.png',
         diners: 'diners.png'
@@ -255,12 +260,10 @@ document.getElementById('card-number') ? .addEventListener('input', function(e) 
         imgBandeira.style.display = 'none';
     }
 
-    // Aplica a máscara de espaços (0000 0000 0000 0000)
     e.target.value = num.replace(/(\d{4})(?=\d)/g, '$1 ');
 });
 
-// Máscara da Data enquanto digita 
-document.getElementById('card-expiry') ? .addEventListener('input', function(e) {
+document.getElementById('card-expiry')?.addEventListener('input', function(e) {
     let v = e.target.value.replace(/\D/g, '');
     if (v.length >= 2) {
         e.target.value = v.substring(0, 2) + '/' + v.substring(2, 4);
@@ -281,11 +284,17 @@ function abrirCheckout() {
     }
 }
 
-document.getElementById('checkout-form') ? .addEventListener('submit', async(e) => {
+document.getElementById('checkout-form')?.addEventListener('submit', async(e) => {
     e.preventDefault();
+    if (!_supabase) {
+        alert("Erro: Banco de dados não conectado.");
+        return;
+    }
+
     const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
     const metodo = radioSelecionado ? radioSelecionado.value : 'pix';
-    const total = Number.parseFloat(document.getElementById('checkout-total').innerText.replace('R$ ', '').replace(',', '.'));
+    const totalText = document.getElementById('checkout-total')?.innerText || "0";
+    const total = Number.parseFloat(totalText.replace('R$ ', '').replace('.', '').replace(',', '.'));
     const pedidoNum = Math.floor(Math.random() * 90000) + 10000;
 
     const { error } = await _supabase.from('pedidosecommerce').insert([{
@@ -302,35 +311,40 @@ document.getElementById('checkout-form') ? .addEventListener('submit', async(e) 
         return;
     }
 
-    checkoutModal.style.display = 'none';
-    document.getElementById('order-confirm-modal').style.display = 'flex';
-    document.getElementById('order-confirm-content').innerHTML = `Pedido <strong>#${pedidoNum}</strong> realizado!`;
+    if (checkoutModal) checkoutModal.style.display = 'none';
+    const confirmModal = document.getElementById('order-confirm-modal');
+    const confirmContent = document.getElementById('order-confirm-content');
+    
+    if (confirmModal) confirmModal.style.display = 'flex';
+    if (confirmContent) confirmContent.innerHTML = `Pedido <strong>#${pedidoNum}</strong> realizado!`;
+    
     cart = [];
     updateCartCounter();
 });
-
 
 // ==========================================
 // 7. HISTÓRICO DE PEDIDOS 
 // ==========================================
 async function carregarHistoricoPedidos() {
-    // 1. Verificação de Segurança
     if (!usuarioLogadoId) {
         console.error("Usuário não identificado.");
         if (loginModal) loginModal.style.display = 'flex';
+        return;
+    }
+    if (!_supabase) {
+        alert("Erro: Conexão com banco de dados indisponível.");
         return;
     }
 
     const ordersList = document.getElementById('orders-list');
     const ordersModal = document.getElementById('orders-modal');
 
-    // 2. Interface: Abrir modal e mostrar carregamento
     if (ordersModal) ordersModal.style.display = 'flex';
     if (ordersList) ordersList.innerHTML = '<p style="text-align:center;">Buscando seus pacotes... 🚚</p>';
 
     try {
-        // 3. Chamada ao Banco de Dados (Usando suas colunas reais)
-        const { data } = await _supabase
+        // CORRIGIDO: Adicionado o "error" na desestruturação
+        const { data, error } = await _supabase
             .from('pedidosecommerce')
             .select('*')
             .eq('id_cliente', usuarioLogadoId)
@@ -338,17 +352,11 @@ async function carregarHistoricoPedidos() {
 
         if (error) throw error;
 
-        // 4. Renderização dos Dados
         if (data && data.length > 0) {
             ordersList.innerHTML = data.map(p => {
-                // Formatação do valor (R$)
                 const valor = p.valor_total ? Number.parseFloat(p.valor_total) : 0;
                 const valorFormatado = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-                // Formatação da Data
-                const dataFormatada = p.data_compra ?
-                    new Date(p.data_compra).toLocaleDateString('pt-BR') :
-                    'Data indisp.';
+                const dataFormatada = p.data_compra ? new Date(p.data_compra).toLocaleDateString('pt-BR') : 'Data indisp.';
 
                 return `
                     <div class="order-card" style="border-bottom: 1px solid #eee; padding: 15px; text-align: left; margin-bottom: 10px;">
@@ -371,11 +379,13 @@ async function carregarHistoricoPedidos() {
             }).join('');
 
         } else {
-            ordersList.innerHTML = `
-                <div style="text-align:center; padding: 20px;">
-                    <p>Você ainda não realizou nenhum pedido.</p>
-                    <small style="color: #ccc;">ID: ${usuarioLogadoId}</small>
-                </div>`;
+            if (ordersList) {
+                ordersList.innerHTML = `
+                    <div style="text-align:center; padding: 20px;">
+                        <p>Você ainda não realizou nenhum pedido.</p>
+                        <small style="color: #ccc;">ID: ${usuarioLogadoId}</small>
+                    </div>`;
+            }
         }
     } catch (err) {
         console.error('Erro ao buscar histórico:', err);
@@ -387,8 +397,8 @@ async function carregarHistoricoPedidos() {
 // 8. EVENTOS GERAIS
 // ==========================================
 
-// Evento de Adicionar ao Carrinho
-productList ? .addEventListener('click', (e) => {
+// CORRIGIDO: Ajustado o espaçamento incorreto de "? ." para "?."
+productList?.addEventListener('click', (e) => {
     if (e.target.classList.contains('add-to-cart-btn')) {
         const id = Number.parseInt(e.target.dataset.id);
         const p = products.find(prod => prod.id === id);
@@ -405,19 +415,19 @@ productList ? .addEventListener('click', (e) => {
     }
 });
 
-// Eventos de Botões e Modais
-trackingBtn ? .addEventListener('click', carregarHistoricoPedidos);
+// CORRIGIDO: Removido os espaços nos encadeamentos opcionais dos botões abaixo
+trackingBtn?.addEventListener('click', carregarHistoricoPedidos);
 
-viewCartBtn ? .addEventListener('click', () => {
+viewCartBtn?.addEventListener('click', () => {
     if (cartModal) cartModal.style.display = 'flex';
 });
 
-checkoutBtn ? .addEventListener('click', () => {
+checkoutBtn?.addEventListener('click', () => {
     if (cartModal) cartModal.style.display = 'none';
-    if (typeof abrirCheckout === 'function') abrirCheckout();
+    abrirCheckout();
 });
 
-document.getElementById('go-to-register') ? .addEventListener('click', () => {
+document.getElementById('go-to-register')?.addEventListener('click', () => {
     if (loginModal) loginModal.style.display = 'none';
     if (registerModal) registerModal.style.display = 'flex';
 });
@@ -432,6 +442,6 @@ document.querySelectorAll('.close-btn').forEach(b => {
 
 // Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof renderizarProdutos === 'function') renderizarProdutos(products);
-    if (typeof updateCartCounter === 'function') updateCartCounter();
+    renderizarProdutos(products);
+    updateCartCounter();
 });
