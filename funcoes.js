@@ -43,12 +43,14 @@ const products = [
 // ==========================================
 // 3. LÓGICA DE FILTROS
 // ==========================================
-btnBuscar ? .addEventListener('click', () => {
-    const tipo = document.getElementById('filter-type').value;
-    const categoria = document.getElementById('filter-category').value;
-    const precoFaixa = document.getElementById('filter-price').value;
-    aplicarFiltrosGlobais(tipo, categoria, precoFaixa);
-});
+if (btnBuscar) {
+    btnBuscar.addEventListener('click', () => {
+        const tipo = document.getElementById('filter-type').value;
+        const categoria = document.getElementById('filter-category').value;
+        const precoFaixa = document.getElementById('filter-price').value;
+        aplicarFiltrosGlobais(tipo, categoria, precoFaixa);
+    });
+}
 
 async function aplicarFiltrosGlobais(tipo, categoria, faixaPreco) {
     productList.innerHTML = '<p>Buscando ofertas...</p>';
