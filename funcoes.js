@@ -29,7 +29,7 @@ const btnBuscar = document.getElementById('btn-buscar-filtros');
 
 const products = [
     { id: 1, name: 'Iphone 7', image: 'https://tse4.mm.bing.net/th/id/OIP.I7MjzaJ-gJVZa9Z1SyAc8QHaEK?rs=1&pid=ImgDetMain&o=7&rm=3', price: 2300.00, type: 'eletronicos', category: 'eletronicos' },
-    { id: 2, name: 'Camiseta de Algodão', image: 'https://tse4.mm.bing.net/th/id/OIP.uNf0Pr7gLS-boMbKwi3qNAHaHY?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', price: 59.90, type: 'roupas', category: 'camisa' },
+    { id: 2, name: 'Camiseta de Algodão', image: 'https://img.elo7.com.br/product/main/2C6BFA4/camisa-definicao-de-programador-camisa-programacao.jpg', price: 59.90, type: 'roupas', category: 'camisa' },
     { id: 3, name: 'Livro: A Jornada do Herói', image: 'https://img.freepik.com/vetores-premium/pilhas-de-livros-para-leitura-pilha-de-livros-didaticos-para-educacao-isolado-no-fundo-branco-ilustracao-dos-desenhos-animados-do-vetor_76964-12652.jpg?w=2000', price: 35.50, type: 'livros', category: 'livros' },
     { id: 4, name: 'Tablet Pro', image: 'https://tse1.mm.bing.net/th/id/OIP.anvp1fW84peymY2W3P5ldAHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', price: 1200.00, type: 'eletronicos', category: 'eletronicos' },
     { id: 5, name: 'Jaqueta de Couro', image: 'https://tse3.mm.bing.net/th/id/OIP.DUf8JhIcJKtf-G3wJhIWKQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', price: 250.00, type: 'roupas', category: 'jaqueta' },
