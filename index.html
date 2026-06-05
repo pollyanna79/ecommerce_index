@@ -1,29 +1,31 @@
-    <!DOCTYPE html>
-    <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Polly e-commerce - Sua Loja Online</title>
-        <link rel="stylesheet" href="projetostyle.css">
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="pt-br">
 
-        <header>
-            <h1>Polly e-commerce</h1>
-            <div class="header-controls">
-                <button type="button" class="tracking-status-btn" id="tracking-btn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polly e-commerce - Sua Loja Online</title>
+    <link rel="stylesheet" href="projetostyle.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <header>
+        <h1>Polly e-commerce</h1>
+        <div class="header-controls">
+            <button type="button" class="tracking-status-btn" id="tracking-btn">
                     <span class="tracking-icon">🚚</span>
                     <span id="order-status-text">Pedidos</span>
                     <span id="order-count-badge" style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; display: none;">0</span>
                 </button>
-                <div class="cart-icon">
-                    <span id="cart-counter">0</span>
-                    <button id="view-cart-btn">🛒 Carrinho</button>
-                </div>
+            <div class="cart-icon">
+                <span id="cart-counter">0</span>
+                <button id="view-cart-btn">🛒 Carrinho</button>
             </div>
-        </header>
-<main>
+        </div>
+    </header>
+    <main>
         <aside class="filters">
             <h2>Filtros</h2>
             <div class="filter-group">
@@ -136,7 +138,7 @@
                             <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5" style="width: 50%;">
                             <input type="text" id="card-cvv" placeholder="CVV" maxlength="4" style="width: 50%;">
                         </div>
-                        
+
                         <label for="installments">Parcelamento:</label>
                         <select id="installments" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
                     </div>
@@ -151,7 +153,9 @@
             <div class="modal-content">
                 <span class="close-btn" data-modal="orders-modal">&times;</span>
                 <h2>Meus Pedidos</h2>
-                <div id="orders-list"><p>Carregando histórico...</p></div>
+                <div id="orders-list">
+                    <p>Carregando histórico...</p>
+                </div>
             </div>
         </div>
 
@@ -166,36 +170,38 @@
 
     </main>
 
-        <footer>
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Polly e-commerce</h3>
-                    <p>Levando o melhor até você com segurança e rapidez.</p>
-                </div>
-                <div class="footer-section">
-
-                    <h4>Redes Sociais</h4>
-
-                    <div class="social-icons">
-
-                        <a href="#" class="social-link">📸 Instagram</a>
-
-                        <a href="#" class="social-link">💬 WhatsApp</a>
-
-                    </div>
-
-                </div>
-                <div class="footer-section">
-                    <h4>Contato</h4>
-                    <p>📧 contato@pollystore.com</p>
-                    <p>📍 Mauá, São Paulo</p>
-                </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Polly e-commerce</h3>
+                <p>Levando o melhor até você com segurança e rapidez.</p>
             </div>
-            <div class="footer-bottom">
-                &copy; 2026 Polly e-commerce - Todos os direitos reservados.
-            </div>
-        </footer>
+            <div class="footer-section">
 
-        <script src="funcoes.js"></script>
-    </body>
-    </html>
+                <h4>Redes Sociais</h4>
+
+                <div class="social-icons">
+
+                    <a href="#" class="social-link">📸 Instagram</a>
+
+                    <a href="#" class="social-link">💬 WhatsApp</a>
+
+                </div>
+
+            </div>
+            <div class="footer-section">
+                <h4>Contato</h4>
+                <p>📧 contato@pollystore.com</p>
+                <p>📍 Mauá, São Paulo</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Polly e-commerce - Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <script src="env.js"></script>
+    <script src="funcoes.js"></script>
+</body>
+
+</html>

@@ -1,9 +1,12 @@
 // 1. CONFIGURAÇÃO DO SUPABASE
 // ==========================================
-const _supabase = supabase.createClient(
-    'https://wdvtuvohucyndqjnfpyh.supabase.co',
-    'sb_publishable_WUIsSwuV_kncGM-YfnT0EA_gnQlS_D3'
-);
+const { SUPABASE_URL, SUPABASE_KEY } = globalThis.APP_CONFIG || {};
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+    throw new Error('Variáveis de ambiente do Supabase não encontradas. Gere env.js a partir de .env');
+}
+
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ==========================================
 // 2. VARIÁVEIS DE ESTADO
@@ -28,13 +31,13 @@ const checkoutBtn = document.getElementById('checkout-btn');
 const btnBuscar = document.getElementById('btn-buscar-filtros');
 
 const products = [
-    { id: 1, name: 'Iphone 7', image: 'https://tse4.mm.bing.net/th/id/OIP.I7MjzaJ-gJVZa9Z1SyAc8QHaEK?rs=1&pid=ImgDetMain&o=7&rm=3', price: 2300.00, type: 'eletronicos', category: 'eletronicos' },
-    { id: 2, name: 'Camiseta de Algodão', image: 'https://img.elo7.com.br/product/main/2C6BFA4/camisa-definicao-de-programador-camisa-programacao.jpg', price: 59.90, type: 'roupas', category: 'camisa' },
-    { id: 3, name: 'Livro: A Jornada do Herói', image: 'https://img.freepik.com/vetores-premium/pilhas-de-livros-para-leitura-pilha-de-livros-didaticos-para-educacao-isolado-no-fundo-branco-ilustracao-dos-desenhos-animados-do-vetor_76964-12652.jpg?w=2000', price: 35.50, type: 'livros', category: 'livros' },
-    { id: 4, name: 'Tablet Pro', image: 'https://tse1.mm.bing.net/th/id/OIP.anvp1fW84peymY2W3P5ldAHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', price: 1200.00, type: 'eletronicos', category: 'eletronicos' },
-    { id: 5, name: 'Jaqueta de Couro', image: 'https://tse3.mm.bing.net/th/id/OIP.DUf8JhIcJKtf-G3wJhIWKQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', price: 250.00, type: 'roupas', category: 'jaqueta' },
-    { id: 6, name: 'Livro: O JavaScript', image: 'https://blog.marcusoliveiradev.com.br/wp-content/uploads/2024/03/JavaScript-%E2%80%93-Guia-do-Programador-Guia-Completo-das-Funcionalidades-de-Linguagem-JavaScript-300x277.jpg', price: 75.00, type: 'livros', category: 'livros' },
-    { id: 7, name: 'Fones Bluetooth', image: 'https://mundodosreviews.com.br/wp-content/uploads/2024/04/Melhores-fones-de-ouvido.jpg', price: 199.90, type: 'eletronicos', category: 'utilidades' }
+    { id: 1, name: 'Iphone 7', image: 'https://tse4.mm.bing.net/th/id/OIP.I7MjzaJ-gJVZa9Z1SyAc8QHaEK?rs=1&pid=ImgDetMain&o=7&rm=3', price: 2300, type: 'eletronicos', category: 'eletronicos' },
+    { id: 2, name: 'Camiseta de Algodão', image: 'https://img.elo7.com.br/product/main/2C6BFA4/camisa-definicao-de-programador-camisa-programacao.jpg', price: 59.9, type: 'roupas', category: 'camisa' },
+    { id: 3, name: 'Livro: A Jornada do Herói', image: 'https://img.freepik.com/vetores-premium/pilhas-de-livros-para-leitura-pilha-de-livros-didaticos-para-educacao-isolado-no-fundo-branco-ilustracao-dos-desenhos-animados-do-vetor_76964-12652.jpg?w=2000', price: 35.5, type: 'livros', category: 'livros' },
+    { id: 4, name: 'Tablet Pro', image: 'https://tse1.mm.bing.net/th/id/OIP.anvp1fW84peymY2W3P5ldAHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', price: 1200, type: 'eletronicos', category: 'eletronicos' },
+    { id: 5, name: 'Jaqueta de Couro', image: 'https://tse3.mm.bing.net/th/id/OIP.DUf8JhIcJKtf-G3wJhIWKQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', price: 250, type: 'roupas', category: 'jaqueta' },
+    { id: 6, name: 'Livro: O JavaScript', image: 'https://blog.marcusoliveiradev.com.br/wp-content/uploads/2024/03/JavaScript-%E2%80%93-Guia-do-Programador-Guia-Completo-das-Funcionalidades-de-Linguagem-JavaScript-300x277.jpg', price: 75, type: 'livros', category: 'livros' },
+    { id: 7, name: 'Fones Bluetooth', image: 'https://mundodosreviews.com.br/wp-content/uploads/2024/04/Melhores-fones-de-ouvido.jpg', price: 199.9, type: 'eletronicos', category: 'utilidades' }
 ];
 
 // ==========================================
@@ -108,7 +111,7 @@ document.getElementById('login-form') ? .addEventListener('submit', async(e) => 
     const senha = document.getElementById('login-password').value;
 
     try {
-        const { data, error } = await _supabase.from('siteecommerce').select('*').eq('email', email).eq('senha', senha).maybeSingle();
+        const { data } = await _supabase.from('siteecommerce').select('*').eq('email', email).eq('senha', senha).maybeSingle();
 
         if (data) {
             usuarioLogadoId = data.id;
@@ -135,7 +138,7 @@ function atualizarValoresCheckout() {
     const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
     const metodo = radioSelecionado ? radioSelecionado.value : 'pix';
 
-    const frete = metodo === 'pix' ? 0 : 15.00;
+    const frete = metodo === 'pix' ? 0 : 15;
     const total = subtotal + frete;
 
     // Atualiza os textos de valores
@@ -182,7 +185,7 @@ document.getElementById('card-expiry') ? .addEventListener('blur', function(e) {
         const [mes, ano] = valor.split('/').map(Number);
         const agora = new Date();
         const mesAtual = agora.getMonth() + 1; // Janeiro é 0
-        const anoAtual = parseInt(agora.getFullYear().toString().slice(-2)); // Pega os últimos 2 dígitos (Ex: 26)
+        const anoAtual = Number.parseInt(agora.getFullYear().toString().slice(-2)); // Pega os últimos 2 dígitos (Ex: 26)
 
         // Validação: Se o ano for menor que o atual OU se for o mesmo ano e o mês já passou
         if (ano < anoAtual || (ano === anoAtual && mes < mesAtual)) {
@@ -219,7 +222,7 @@ document.getElementById('card-number') ? .addEventListener('input', function(e) 
         amex: /^3[47]/,
         elo: /^((433604)|(438935)|(451416)|(457393)|(457631)|(457632)|(504175)|(627780)|(636297)|(636368)|(650031))/,
         hipercard: /^(606282|3841)/,
-        diners: /^3(?:0[0-5]|[68][0-9])/
+        diners: /^3(?:0[0-5]|[68]\d)/
     };
 
     let achou = false;
@@ -268,7 +271,7 @@ document.getElementById('checkout-form') ? .addEventListener('submit', async(e) 
     e.preventDefault();
     const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
     const metodo = radioSelecionado ? radioSelecionado.value : 'pix';
-    const total = parseFloat(document.getElementById('checkout-total').innerText.replace('R$ ', '').replace(',', '.'));
+    const total = Number.parseFloat(document.getElementById('checkout-total').innerText.replace('R$ ', '').replace(',', '.'));
     const pedidoNum = Math.floor(Math.random() * 90000) + 10000;
 
     const { error } = await _supabase.from('pedidosecommerce').insert([{
@@ -280,15 +283,16 @@ document.getElementById('checkout-form') ? .addEventListener('submit', async(e) 
         status: 'Preparando envio'
     }]);
 
-    if (!error) {
-        checkoutModal.style.display = 'none';
-        document.getElementById('order-confirm-modal').style.display = 'flex';
-        document.getElementById('order-confirm-content').innerHTML = `Pedido <strong>#${pedidoNum}</strong> realizado!`;
-        cart = [];
-        updateCartCounter();
-    } else {
+    if (error) {
         alert("Erro: " + error.message);
+        return;
     }
+
+    checkoutModal.style.display = 'none';
+    document.getElementById('order-confirm-modal').style.display = 'flex';
+    document.getElementById('order-confirm-content').innerHTML = `Pedido <strong>#${pedidoNum}</strong> realizado!`;
+    cart = [];
+    updateCartCounter();
 });
 
 
@@ -299,7 +303,7 @@ async function carregarHistoricoPedidos() {
     // 1. Verificação de Segurança
     if (!usuarioLogadoId) {
         console.error("Usuário não identificado.");
-        if (typeof loginModal !== 'undefined') loginModal.style.display = 'flex';
+        if (loginModal) loginModal.style.display = 'flex';
         return;
     }
 
@@ -312,7 +316,7 @@ async function carregarHistoricoPedidos() {
 
     try {
         // 3. Chamada ao Banco de Dados (Usando suas colunas reais)
-        const { data, error } = await _supabase
+        const { data } = await _supabase
             .from('pedidosecommerce')
             .select('*')
             .eq('id_cliente', usuarioLogadoId)
@@ -324,7 +328,7 @@ async function carregarHistoricoPedidos() {
         if (data && data.length > 0) {
             ordersList.innerHTML = data.map(p => {
                 // Formatação do valor (R$)
-                const valor = p.valor_total ? parseFloat(p.valor_total) : 0;
+                const valor = p.valor_total ? Number.parseFloat(p.valor_total) : 0;
                 const valorFormatado = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
                 // Formatação da Data
@@ -372,7 +376,7 @@ async function carregarHistoricoPedidos() {
 // Evento de Adicionar ao Carrinho
 productList ? .addEventListener('click', (e) => {
     if (e.target.classList.contains('add-to-cart-btn')) {
-        const id = parseInt(e.target.dataset.id);
+        const id = Number.parseInt(e.target.dataset.id);
         const p = products.find(prod => prod.id === id);
         if (p) {
             const existe = cart.find(i => i.id === id);
@@ -391,17 +395,17 @@ productList ? .addEventListener('click', (e) => {
 trackingBtn ? .addEventListener('click', carregarHistoricoPedidos);
 
 viewCartBtn ? .addEventListener('click', () => {
-    if (typeof cartModal !== 'undefined') cartModal.style.display = 'flex';
+    if (cartModal) cartModal.style.display = 'flex';
 });
 
 checkoutBtn ? .addEventListener('click', () => {
-    if (typeof cartModal !== 'undefined') cartModal.style.display = 'none';
+    if (cartModal) cartModal.style.display = 'none';
     if (typeof abrirCheckout === 'function') abrirCheckout();
 });
 
 document.getElementById('go-to-register') ? .addEventListener('click', () => {
-    if (typeof loginModal !== 'undefined') loginModal.style.display = 'none';
-    if (typeof registerModal !== 'undefined') registerModal.style.display = 'flex';
+    if (loginModal) loginModal.style.display = 'none';
+    if (registerModal) registerModal.style.display = 'flex';
 });
 
 // Fechar Modais
