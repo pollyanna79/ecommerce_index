@@ -1,12 +1,18 @@
 // 1. CONFIGURAÇÃO DO SUPABASE
 // ==========================================
-const { SUPABASE_URL, SUPABASE_KEY } = globalThis.APP_CONFIG || {};
+const SUPABASE_URL = globalThis.APP_CONFIG?.SUPABASE_URL || globalThis.SUPABASE_URL || document.querySelector("meta[name=\"supabase-url\"]")?.content;
+const SUPABASE_KEY = globalThis.APP_CONFIG?.SUPABASE_KEY || globalThis.SUPABASE_KEY || document.querySelector("meta[name=\"supabase-key\"]")?.content;
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error('Variáveis de ambiente do Supabase não encontradas. Gere env.js a partir de .env');
+const _supabase = (SUPABASE_URL && SUPABASE_KEY) ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+function ensureSupabase() {
+    if (!_supabase) {
+        alert('Supabase não configurado. Defina SUPABASE_URL e SUPABASE_KEY como variáveis globais no Vercel ou em window.APP_CONFIG.');
+        console.error('Supabase não inicializado. Defina SUPABASE_URL/SUPABASE_KEY em window.APP_CONFIG ou window.SUPABASE_URL / window.SUPABASE_KEY.');
+        return false;
+    }
+    return true;
 }
-
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ==========================================
 // 2. VARIÁVEIS DE ESTADO
@@ -43,7 +49,7 @@ const products = [
 // ==========================================
 // 3. LÓGICA DE FILTROS
 // ==========================================
-btnBuscar ? .addEventListener('click', () => {
+btnBuscar ?.addEventListener('click', () => {
     const tipo = document.getElementById('filter-type').value;
     const categoria = document.getElementById('filter-category').value;
     const precoFaixa = document.getElementById('filter-price').value;
@@ -104,8 +110,9 @@ function updateCartCounter() {
 // ==========================================
 // 5. USUÁRIO (LOGIN/CADASTRO)
 // ==========================================
-document.getElementById('login-form') ? .addEventListener('submit', async(e) => {
+document.getElementById('login-form') ?.addEventListener('submit', async(e) => {
     e.preventDefault();
+    if (!ensureSupabase()) return;
     const statusDiv = document.getElementById('login-status');
     const email = document.getElementById('login-email').value;
     const senha = document.getElementById('login-password').value;
@@ -179,7 +186,7 @@ function gerarParcelas(total) {
 
 // --- LÓGICA DE IDENTIFICAÇÃO DE BANDEIRA E MÁSCARAS ---
 // --- 2. Máscara da Data de Vencimento (MM/AA) com VALIDAÇÃO ---
-document.getElementById('card-expiry') ? .addEventListener('blur', function(e) {
+document.getElementById('card-expiry') ?.addEventListener('blur', function(e) {
     const valor = e.target.value;
     if (valor.length === 5) {
         const [mes, ano] = valor.split('/').map(Number);
@@ -203,7 +210,7 @@ document.getElementById('card-expiry') ? .addEventListener('blur', function(e) {
 });
 
 // 1. Identificar Bandeira e formatar número
-document.getElementById('card-number') ? .addEventListener('input', function(e) {
+document.getElementById('card-number') ?.addEventListener('input', function(e) {
     let num = e.target.value.replace(/\s/g, ''); // Remove espaços para validar
     const imgBandeira = document.getElementById('card-brand-img');
 
@@ -246,7 +253,7 @@ document.getElementById('card-number') ? .addEventListener('input', function(e) 
 });
 
 // Máscara da Data enquanto digita 
-document.getElementById('card-expiry') ? .addEventListener('input', function(e) {
+document.getElementById('card-expiry') ?.addEventListener('input', function(e) {
     let v = e.target.value.replace(/\D/g, '');
     if (v.length >= 2) {
         e.target.value = v.substring(0, 2) + '/' + v.substring(2, 4);
@@ -267,8 +274,9 @@ function abrirCheckout() {
     }
 }
 
-document.getElementById('checkout-form') ? .addEventListener('submit', async(e) => {
+document.getElementById('checkout-form') ?.addEventListener('submit', async(e) => {
     e.preventDefault();
+    if (!ensureSupabase()) return;
     const radioSelecionado = document.querySelector('input[name="payment-method"]:checked');
     const metodo = radioSelecionado ? radioSelecionado.value : 'pix';
     const total = Number.parseFloat(document.getElementById('checkout-total').innerText.replace('R$ ', '').replace(',', '.'));
@@ -278,9 +286,11 @@ document.getElementById('checkout-form') ? .addEventListener('submit', async(e) 
         id_cliente: usuarioLogadoId,
         id_pedido: pedidoNum,
         itens_compra: cart.map(i => `${i.quantity}x ${i.name}`).join(', '),
+        quantidade: cart.reduce((sum, item) => sum + item.quantity, 0),
         valor_total: total,
         metodo_pagamento: metodo,
-        status: 'Preparando envio'
+        status: 'Preparando envio',
+        data_compra: new Date().toISOString()
     }]);
 
     if (error) {
@@ -300,6 +310,8 @@ document.getElementById('checkout-form') ? .addEventListener('submit', async(e) 
 // 7. HISTÓRICO DE PEDIDOS 
 // ==========================================
 async function carregarHistoricoPedidos() {
+    if (!ensureSupabase()) return;
+
     // 1. Verificação de Segurança
     if (!usuarioLogadoId) {
         console.error("Usuário não identificado.");
@@ -316,8 +328,8 @@ async function carregarHistoricoPedidos() {
 
     try {
         // 3. Chamada ao Banco de Dados (Usando suas colunas reais)
-        const { data } = await _supabase
-            .from('pedidosecommerce')
+        const { data, error } = await _supabase
+            .from('v_historico_pedidos_cliente')
             .select('*')
             .eq('id_cliente', usuarioLogadoId)
             .order('data_compra', { ascending: false });
@@ -374,7 +386,7 @@ async function carregarHistoricoPedidos() {
 // ==========================================
 
 // Evento de Adicionar ao Carrinho
-productList ? .addEventListener('click', (e) => {
+productList ?.addEventListener('click', (e) => {
     if (e.target.classList.contains('add-to-cart-btn')) {
         const id = Number.parseInt(e.target.dataset.id);
         const p = products.find(prod => prod.id === id);
@@ -392,18 +404,18 @@ productList ? .addEventListener('click', (e) => {
 });
 
 // Eventos de Botões e Modais
-trackingBtn ? .addEventListener('click', carregarHistoricoPedidos);
+trackingBtn ?.addEventListener('click', carregarHistoricoPedidos);
 
-viewCartBtn ? .addEventListener('click', () => {
+viewCartBtn ?.addEventListener('click', () => {
     if (cartModal) cartModal.style.display = 'flex';
 });
 
-checkoutBtn ? .addEventListener('click', () => {
+checkoutBtn ?.addEventListener('click', () => {
     if (cartModal) cartModal.style.display = 'none';
     if (typeof abrirCheckout === 'function') abrirCheckout();
 });
 
-document.getElementById('go-to-register') ? .addEventListener('click', () => {
+document.getElementById('go-to-register') ?.addEventListener('click', () => {
     if (loginModal) loginModal.style.display = 'none';
     if (registerModal) registerModal.style.display = 'flex';
 });
