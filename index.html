@@ -32,20 +32,18 @@
                 <label for="filter-type">Tipo:</label>
                 <select id="filter-type">
                     <option value="all">Todos</option>
-                    <option value="eletronicos">Eletrônicos</option>
+                    <option value="eletronico">Eletrônicos</option>
                     <option value="roupas">Roupas</option>
-                    <option value="livros">Livros</option>
+                    <option value="livraria">Livraria</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label for="filter-category">Categoria:</label>
                 <select id="filter-category">
                     <option value="all">Todas</option>
-                    <option value="eletronicos">Smartphones</option>
-                    <option value="camisa">Camisas</option>
-                    <option value="livros">Livros</option>
-                    <option value="jaqueta">Jaquetas</option>
-                    <option value="utilidades">Fone de ouvido</option>
+                    <option value="eletronico">Eletrônicos</option>
+                    <option value="roupas">Roupas</option>
+                    <option value="livraria">Livraria</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -73,6 +71,24 @@
                     <strong>Total: R$ <span id="cart-total">0,00</span></strong>
                 </div>
                 <button id="checkout-btn" class="btn-primary">Comprar</button>
+            </div>
+        </div>
+
+        <div id="product-detail-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="product-detail-modal">&times;</span>
+                <div class="product-detail-card">
+                    <img id="detail-image" src="" alt="Detalhe do produto" style="width: 100%; max-height: 220px; object-fit: contain; margin-bottom: 15px;">
+                    <h2 id="detail-name"></h2>
+                    <p id="detail-description"></p>
+                    <p id="detail-price" style="font-weight:bold; margin: 10px 0;"></p>
+                    <div class="quantity-control" style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+                        <button id="detail-qty-decrease" type="button">-</button>
+                        <span id="detail-qty-value">1</span>
+                        <button id="detail-qty-increase" type="button">+</button>
+                    </div>
+                    <button id="detail-add-cart-btn" class="btn-primary" style="width: 100%;">Adicionar ao carrinho</button>
+                </div>
             </div>
         </div>
 
@@ -154,7 +170,7 @@
                 <span class="close-btn" data-modal="orders-modal">&times;</span>
                 <h2>Meus Pedidos</h2>
                 <div id="orders-list">
-                    <p>Carregando histórico...</p>
+                    <p>Carregando histórico....</p>
                 </div>
             </div>
         </div>
