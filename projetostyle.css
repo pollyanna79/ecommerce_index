@@ -104,32 +104,43 @@ main {
    ============================================================ */
 
 .modal {
-    display: none;
+    display: none; 
     position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    justify-content: center;
+    background-color: rgba(0,0,0,0.5);
     align-items: center;
-    z-index: 2000;
-    padding: 15px;
+    justify-content: center;
 }
 
 .modal-content {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 12px;
+    background: #fff;
+    width: 90%;          /* Ocupa 90% da tela em celulares */
+    max-width: 500px;    /* Não passa de 500px em desktops */
+    max-height: 80vh;    /* Limita a altura a 80% da tela */
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;    /* Habilita scroll dentro do modal */
+}
+
+/* Imagens dentro do carrinho */
+#cart-items img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Ajuste nos botões para mobile */
+.btn-primary {
     width: 100%;
-    max-width: 500px;
-    max-height: 90vh;
-    /* Não deixa o modal ser maior que a tela */
-    overflow-y: auto;
-    /* Permite rolar dentro do modal se for muito grande */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    position: relative;
-    animation: slideIn 0.3s ease-out;
+    padding: 12px;
+    margin-top: 15px;
 }
 
 @keyframes slideIn {
@@ -208,30 +219,26 @@ select {
     flex-shrink: 0;
 }
 
-.product-list {
-    flex-grow: 1;
+
+
+/* Container da lista de produtos */
+#product-list {
     display: grid;
-    /* Ajusta automaticamente colunas de no mínimo 200px */
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    /* Cria colunas que se ajustam sozinhas (mínimo de 250px por card) */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
+    padding: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.product-card {
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
+/* Garante que a imagem do card seja responsiva */
 .product-card img {
     width: 100%;
-    height: 150px;
-    object-fit: contain;
-    margin-bottom: 10px;
+    height: 200px;
+    object-fit: cover; /* Mantém a proporção sem deformar a imagem */
+    border-radius: 8px 8px 0 0;
 }
 
 

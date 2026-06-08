@@ -1,17 +1,17 @@
 ﻿// ==========================================
-// 1. CONFIGURAÃ‡ÃƒO DO SUPABASE
+// 1. CONFIGURAÇÃO DO SUPABASE
 // ==========================================
 const SUPABASE_URL = globalThis.APP_CONFIG ?.SUPABASE_URL || 'https://wdvtuvohucyndqjnfpyh.supabase.co';
 const SUPABASE_KEY = globalThis.APP_CONFIG ?.SUPABASE_KEY || 'sb_publishable_WUIsSwuV_kncGM-YfnT0EA_gnQlS_D3';
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error('VariÃ¡veis de ambiente do Supabase nÃ£o encontradas. Gere env.js a partir de .env');
+    throw new Error('Variáveis de ambiente do Supabase não encontradas. Gere env.js a partir de .env');
 }
 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ==========================================
-// 2. VARIÃVEIS DE ESTADO
+// 2. VARIÁVEIS DE ESTADO
 // ==========================================
 let cart = [];
 let usuarioLogadoId = null;
@@ -34,7 +34,7 @@ const checkoutBtn = document.getElementById('checkout-btn');
 const btnBuscar = document.getElementById('btn-buscar-filtros');
 
 // ==========================================
-// 3. LÃ“GICA DE FILTROS
+// 3. LÓGICA DE FILTROS
 // ==========================================
 btnBuscar ?.addEventListener('click', () => {
     const tipo = document.getElementById('filter-type') ?.value;
@@ -94,7 +94,7 @@ async function carregarProdutos() {
                 productDescription = rawDescricao.slice(separatorIndex + 1).trim();
             }
             if (!productDescription) {
-                productDescription = item.setor ? `Categoria: ${item.setor}` : 'DescriÃ§Ã£o nÃ£o disponÃ­vel';
+                productDescription = item.setor ? `Categoria: ${item.setor}` : 'Descrição não disponível';
             }
             return {
                 id: item.id,
@@ -138,7 +138,7 @@ function renderizarProdutos(lista) {
 
 function ensureSupabase() {
     if (!_supabase) {
-        alert('Erro: Supabase nÃ£o inicializado.');
+        alert('Erro: Supabase não inicializado.');
         return false;
     }
     return true;
@@ -182,7 +182,7 @@ function abrirDetalhesProduto(produto) {
     if (!detailModal || !detailName || !detailDesc || !detailPrice || !detailImage || !detailQty || !detailAdd) return;
 
     detailName.innerText = produto.name;
-    detailDesc.innerText = produto.description || 'DescriÃ§Ã£o nÃ£o disponÃ­vel.';
+    detailDesc.innerText = produto.description || 'Descrição não disponível.';
     detailPrice.innerText = `R$ ${produto.price.toFixed(2).replace('.', ',')}`;
     detailImage.src = produto.imagem;
     detailImage.alt = produto.name;
@@ -266,7 +266,7 @@ function renderCartItems() {
 }
 
 // ==========================================
-// 5. USUÃRIO (LOGIN/CADASTRO)
+// 5. USUÁRIO (LOGIN/CADASTRO)
 // ==========================================
 document.getElementById('login-form') ?.addEventListener('submit', async(e) => {
     e.preventDefault();
@@ -276,7 +276,7 @@ document.getElementById('login-form') ?.addEventListener('submit', async(e) => {
     const senha = document.getElementById('login-password').value;
 
     if (!_supabase) {
-        alert("Erro: Supabase nÃ£o inicializado corretamente.");
+        alert("Erro: Supabase não inicializado corretamente.");
         return;
     }
 
@@ -336,7 +336,7 @@ if (registerForm){
             if (existingError) throw existingError;
             if (existing) {
                 const motivo = existing.cpf === cpf ? 'CPF' : 'E-mail';
-                if (statusDiv) statusDiv.innerHTML = `<p style="color:red;">${motivo} jÃ¡ cadastrado. FaÃ§a login ou use outro cadastro.</p>`;
+                if (statusDiv) statusDiv.innerHTML = `<p style="color:red;">${motivo} já cadastrado. Faça login ou use outro cadastro.</p>`;
                 return;
             }
 
@@ -434,8 +434,8 @@ function gerarParcelas(total) {
     }
 }
 
-// --- LÃ“GICA DE IDENTIFICAÃ‡ÃƒO DE BANDEIRA E MÃSCARAS ---
-// --- 2. MÃ¡scara da Data de Vencimento (MM/AA) com VALIDAÃ‡ÃƒO ---
+// --- LÓGICA DE IDENTIFICAÇÃO DE BANDEIRA E MÁSCARAS ---
+// --- 2. Máscara da Data de Vencimento (MM/AA) com VALIDAÇÃO ---
 document.getElementById('card-expiry') ?.addEventListener('blur', function(e) {
     const valor = e.target.value;
     if (valor.length === 5) {
@@ -445,11 +445,11 @@ document.getElementById('card-expiry') ?.addEventListener('blur', function(e) {
         const anoAtual = Number.parseInt(agora.getFullYear().toString().slice(-2));
 
         if (ano < anoAtual || (ano === anoAtual && mes < mesAtual)) {
-            alert("CartÃ£o vencido! Por favor, verifique a data de validade.");
+            alert("Cartão vencido! Por favor, verifique a data de validade.");
             e.target.value = '';
             e.target.style.borderColor = 'red';
         } else if (mes < 1 || mes > 12) {
-            alert("MÃªs invÃ¡lido!");
+            alert("Mês inválido!");
             e.target.value = '';
             e.target.style.borderColor = 'red';
         } else {
@@ -458,9 +458,9 @@ document.getElementById('card-expiry') ?.addEventListener('blur', function(e) {
     }
 });
 
-// 1. Identificar Bandeira e formatar nÃºmero
+// 1. Identificar Bandeira e formatar número
 document.getElementById('card-number') ?.addEventListener('input', function(e) {
-    let num = e.target.value.replace(/\s/g, ''); // Remove espaÃ§os para validar
+    let num = e.target.value.replace(/\s/g, ''); // Remove espaços para validar
     const imgBandeira = document.getElementById('card-brand-img');
 
     const icones = {
@@ -500,7 +500,7 @@ document.getElementById('card-number') ?.addEventListener('input', function(e) {
     e.target.value = num.replace(/(\d{4})(?=\d)/g, '$1 ');
 });
 
-// MÃ¡scara da Data enquanto digita 
+// Máscara da Data enquanto digita 
 document.getElementById('card-expiry') ?.addEventListener('input', function(e) {
     let v = e.target.value.replace(/\D/g, '');
     if (v.length >= 2) {
@@ -512,7 +512,7 @@ document.getElementById('card-expiry') ?.addEventListener('input', function(e) {
 
 function abrirCheckout() {
     if (!usuarioLogadoId) {
-        alert("FaÃ§a login primeiro!");
+        alert("Faça login primeiro!");
         if (loginModal) loginModal.style.display = 'flex';
         return;
     }
@@ -527,7 +527,7 @@ if (checkoutForm) {
     checkoutForm.addEventListener('submit', async(e) => {
         e.preventDefault();
         if (!usuarioLogadoId) {
-            alert('FaÃ§a login para finalizar o pedido.');
+            alert('Faça login para finalizar o pedido.');
             if (loginModal) loginModal.style.display = 'flex';
             return;
         }
@@ -541,7 +541,7 @@ if (checkoutForm) {
         const pedidoNum = Math.floor(Math.random() * 900000) + 100000;
 
         if (cart.length === 0) {
-            alert('Seu carrinho estÃ¡ vazio. Adicione produtos antes de finalizar.');
+            alert('Seu carrinho está vazio. Adicione produtos antes de finalizar.');
             return;
         }
 
@@ -551,9 +551,9 @@ if (checkoutForm) {
             itens_compra: cart.map(i => `${i.quantity}x ${i.name}`).join(', '),
             quantidade: cart.reduce((sum, item) => sum + item.quantity, 0),
             valor_total: total,
-            metodo_pagamento: metodo === 'cartao' ? `CartÃ£o - ${parcelas}x` : 'Pix',
+            metodo_pagamento: metodo === 'cartao' ? `Cartão - ${parcelas}x` : 'Pix',
             numero_cartao: metodo === 'cartao' ? cardNumber : null,
-            status: 'Aguardando separaÃ§Ã£o',
+            status: 'Aguardando separação',
             data_compra: new Date().toISOString(),
             id_produto: cart[0] ?.id || null
         };
@@ -586,17 +586,17 @@ if (checkoutForm) {
 }
 
 // ==========================================
-// 7. HISTÃ“RICO DE PEDIDOS 
+// 7. HISTÓRICO DE PEDIDOS 
 // ==========================================
 async function carregarHistoricoPedidos() {
-    // 1. VerificaÃ§Ã£o de SeguranÃ§a
+    // 1. Verificação de Segurança
     if (!usuarioLogadoId) {
-        console.error("UsuÃ¡rio nÃ£o identificado.");
+        console.error("Usuário não identificado.");
         if (loginModal) loginModal.style.display = 'flex';
         return;
     }
     if (!_supabase) {
-        alert("Erro: ConexÃ£o com banco de dados indisponÃ­vel.");
+        alert("Erro: Conexão com banco de dados indisponível.");
         return;
     }
 
@@ -621,8 +621,8 @@ async function carregarHistoricoPedidos() {
                 const valor = p.valor_total ? Number.parseFloat(p.valor_total) : 0;
                 const valorFormatado = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 const dataFormatada = p.data_compra ? new Date(p.data_compra).toLocaleDateString('pt-BR') : 'Data indisp.';
-                const paymentText = p.metodo_pagamento || 'NÃ£o informado';
-                const statusText = p.status || 'Aguardando separaÃ§Ã£o';
+                const paymentText = p.metodo_pagamento || 'Não informado';
+                const statusText = p.status || 'Aguardando separação';
                 const itemList = p.itens_compra || '';
                 const orderItems = itemList.split(',').map(i => i.trim()).filter(Boolean);
 
@@ -661,14 +661,14 @@ async function carregarHistoricoPedidos() {
             if (ordersList) {
                 ordersList.innerHTML = `
                     <div style="text-align:center; padding: 20px;">
-                        <p>VocÃª ainda nÃ£o realizou nenhum pedido.</p>
+                        <p>Você ainda não realizou nenhum pedido.</p>
                         <small style="color: #ccc;">ID: ${usuarioLogadoId}</small>
                     </div>`;
             }
         }
     } catch (err) {
-        console.error('Erro ao buscar histÃ³rico:', err);
-        if (ordersList) ordersList.innerHTML = '<p style="color: red; text-align: center;">Erro tÃ©cnico ao carregar histÃ³rico.</p>';
+        console.error('Erro ao buscar histórico:', err);
+        if (ordersList) ordersList.innerHTML = '<p style="color: red; text-align: center;">Erro técnico ao carregar histórico.</p>';
     }
 }
 
@@ -704,7 +704,7 @@ productList ?.addEventListener('click', (e) => {
     }
 });
 
-// Eventos de BotÃµes e Modais
+// Eventos de Botões e Modais
 trackingBtn ?.addEventListener('click', carregarHistoricoPedidos);
 
 viewCartBtn ?.addEventListener('click', () => {
