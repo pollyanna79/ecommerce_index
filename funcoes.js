@@ -17,7 +17,9 @@ const cartModal = document.getElementById('cart-modal');
 const loginModal = document.getElementById('login-modal');
 const registerModal = document.getElementById('register-modal');
 const checkoutModal = document.getElementById('checkout-modal');
-
+const filtroCategoria = document.getElementById('filter-category');
+const btnBuscar = document.getElementById('btn-buscar-filtros');
+const filtroPreco = document.getElementById('filter-price');
 // ==========================================
 // 2. FUNÇÕES AUXILIARES
 // ==========================================
@@ -28,7 +30,43 @@ function ensureSupabase() {
     }
     return true;
 }
+//3-Filtrar por categoria e preço
+async function buscarProdutosFiltrados() {
+    if (!ensureSupabase()) return;
 
+    const categoria = document.getElementById('filter-category').value;
+    const preco = document.getElementById('filter-price').value;
+
+    let query = _supabase.from('produtosecommerce').select('*');
+
+    if (categoria !== 'all') {
+        query = query.eq('setor', categoria);
+    }
+
+    if (preco !== 'all') {
+        const [min, max] = preco.split('-').map(Number);
+        query = query.gte('preco', min).lte('preco', max);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+        console.error("Erro ao buscar:", error);
+    } else {
+        // --- CORREÇÃO AQUI ---
+        // Antes de renderizar, formate os dados como você fez no carregarProdutos
+        const produtosFormatados = data.map(item => ({
+            ...item,
+            name: item.descricao?.split(/[,â€“-]/)[0].trim() || `Produto ${item.id}`,
+            price: parsePrice(item.preco)
+        }));
+        
+        renderizarProdutos(produtosFormatados);
+    }
+}
+
+// Vincula ao botão
+document.getElementById('btn-buscar-filtros').addEventListener('click', buscarProdutosFiltrados);
 function parsePrice(value) {
     if (value == null || value === '') return 0;
     if (typeof value === 'number') return value;
@@ -45,7 +83,7 @@ function updateCartCounter() {
 }
 
 // ==========================================
-// 3. PRODUTOS E FILTROS
+// 4. CARREGAMENTO E RENDERIZAÇÃO DE PRODUTOS
 // ==========================================
 async function carregarProdutos() {
     if (!ensureSupabase()) return;
@@ -72,10 +110,11 @@ function renderizarProdutos(lista) {
             <button class="add-to-cart-btn" data-id="${p.id}">Adicionar</button>
         </div>
     `).join('');
+    
 }
 
 // ==========================================
-// 4. CHECKOUT E PEDIDOS
+// 5. CHECKOUT E PEDIDOS
 // ==========================================
 async function finalizarPedido() {
     if (!usuarioLogadoId) return alert("Faça login para finalizar!");
@@ -104,7 +143,7 @@ async function finalizarPedido() {
 }
 
 // ==========================================
-// 5. EVENTOS E INICIALIZAÇÃO
+// 6. EVENTOS E INICIALIZAÇÃO
 // ==========================================
 document.getElementById('checkout-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -112,15 +151,43 @@ document.getElementById('checkout-form')?.addEventListener('submit', (e) => {
 });
 
 productList?.addEventListener('click', (e) => {
+    // 1. Captura o ID do elemento clicado
     const id = Number(e.target.dataset.id);
     if (!id) return;
 
+    // 2. Lógica para o botão "ADICIONAR AO CARRINHO"
     if (e.target.classList.contains('add-to-cart-btn')) {
         const p = products.find(prod => prod.id === id);
-        const existe = cart.find(i => i.id === id);
-        existe ? existe.quantity++ : cart.push({...p, quantity: 1});
-        updateCartCounter();
-        alert("Adicionado ao carrinho!");
+        if (p) {
+            const itemExistente = cart.find(i => i.id === id);
+            if (itemExistente) {
+                itemExistente.quantity++;
+            } else {
+                // Copia o produto e adiciona a quantidade inicial
+                cart.push({...p, quantity: 1});
+            }
+            
+            updateCartCounter(); // Atualiza o número no ícone do carrinho
+            alert(`${p.name} adicionado ao carrinho!`);
+        }
+    }
+// Este código adiciona o evento de fechar a TODOS os botões X que existirem no HTML
+document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        closeAllModals();
+    });
+});
+    // 3. Lógica para o botão "VER DETALHES"
+    if (e.target.classList.contains('view-product-btn')) {
+        const p = products.find(prod => prod.id === id);
+        if (p) {
+            document.getElementById('detail-image').src = p.imagem || 'https://via.placeholder.com/300x200';
+            document.getElementById('detail-name').textContent = p.name;
+            document.getElementById('detail-description').textContent = p.descricao || "Sem descrição disponível.";
+            document.getElementById('detail-price').textContent = `R$ ${p.price.toFixed(2).replace('.', ',')}`;
+            
+            document.getElementById('product-detail-modal').style.display = 'block';
+        }
     }
 });
 

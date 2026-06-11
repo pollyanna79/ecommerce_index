@@ -28,22 +28,14 @@
     <main>
         <aside class="filters">
             <h2>Filtros</h2>
-            <div class="filter-group">
-                <label for="filter-type">Tipo:</label>
-                <select id="filter-type">
-                    <option value="all">Todos</option>
-                    <option value="eletronico">Eletrônicos</option>
-                    <option value="roupas">Roupas</option>
-                    <option value="livraria">Livraria</option>
-                </select>
-            </div>
+         
             <div class="filter-group">
                 <label for="filter-category">Categoria:</label>
                 <select id="filter-category">
                     <option value="all">Todas</option>
-                    <option value="eletronico">Eletrônicos</option>
-                    <option value="roupas">Roupas</option>
-                    <option value="livraria">Livraria</option>
+                    <option value="Eletrônico">Eletrônicos</option>
+                    <option value="Roupas">Roupas</option>
+                    <option value="Livraria">Livraria</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -51,12 +43,12 @@
                 <select id="filter-price">
                     <option value="all">Todos os preços</option>
                     <option value="0-50">Até R$ 50,00</option>
-                    <option value="51-100">R$ 51,00 a R$ 149,00</option>
-                    <option value="101-2000">R$ 150,00 a R$ 10000,00</option>
+                    <option value="51-149">R$ 51,00 a R$ 149,00</option>
+                    <option value="150-10000">R$ 150,00 a R$ 10000,00</option>
                 </select>
             </div>
             <button type="button" id="btn-buscar-filtros" class="btn-primary" style="width: 100%; margin-top: 10px;">
-                🔍 Aplicar Filtros
+                🔍 Buscar
             </button>
         </aside>
 
@@ -79,7 +71,7 @@
                 <span class="close-btn" data-modal="product-detail-modal">&times;</span>
                 <div class="product-detail-card">
                     <img id="detail-image" src="" alt="Detalhe do produto" style="width: 100%; max-height: 220px; object-fit: contain; margin-bottom: 15px;">
-                    <h2 id="detail-name"></h2>
+                    <h2 id="detail-name">Detalhes do Produto</h2>
                     <p id="detail-description"></p>
                     <p id="detail-price" style="font-weight:bold; margin: 10px 0;"></p>
                     <div class="quantity-control" style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">

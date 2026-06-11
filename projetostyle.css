@@ -117,17 +117,18 @@ main {
 }
 
 .modal-content {
+position: relative; /* Isso é crucial para o "X" se posicionar em relação ao modal */
     background: #fff;
-    width: 90%;          /* Ocupa 90% da tela em celulares */
-    max-width: 500px;    /* Não passa de 500px em desktops */
-    max-height: 80vh;    /* Limita a altura a 80% da tela */
+    width: 90%;
+    max-width: 500px;
     padding: 20px;
     border-radius: 10px;
     display: flex;
-    flex-direction: column;
-    overflow-y: auto;    /* Habilita scroll dentro do modal */
+    flex-direction: column;  /* Habilita scroll dentro do modal */
 }
-
+.close-btn:hover {
+    color: #ff0000; /* Destaque ao passar o mouse */
+}
 /* Imagens dentro do carrinho */
 #cart-items img {
     width: 60px;
@@ -155,13 +156,14 @@ main {
 }
 
 .close-btn {
-    position: absolute;
+position: absolute;
     right: 15px;
     top: 10px;
     font-size: 28px;
     font-weight: bold;
-    color: #999;
+    color: #333;
     cursor: pointer;
+    line-height: 1;
 }
 
 
