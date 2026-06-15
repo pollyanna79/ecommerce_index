@@ -41,11 +41,13 @@ header h1 {
 }
 
 main {
-    display: flex;
+display: flex;
     padding: 20px;
     max-width: 1400px;
     margin: 0 auto;
     min-height: 70vh;
+    gap: 30px; /* Adiciona um espaço entre filtros e produtos */
+    align-items: flex-start; /* Impede que o filtro estique verticalmente */
 }
 
 /* ============================================================
@@ -174,26 +176,32 @@ input[type="password"], input[type="number"], select {
    5. FILTROS E LISTA DE PRODUTOS (GRID DINÂMICO)
    ============================================================ */
 .filters {
-    width: 250px;
+    width: 280px; /* Um pouco mais largo para desktop */
     padding: 20px;
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-right: 30px;
     height: fit-content;
     flex-shrink: 0;
+    align-self: flex-start; /* Impede que o filtro estique verticalmente com a lista */
+}
+.filter-group select {
+    width: 100%;
+    margin-bottom: 15px;
 }
 
 .product-list {
     flex-grow: 1;
     display: grid;
-    /* Ajusta automaticamente colunas de no mínimo 200px */
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    /* Ajuste aqui: define um limite máximo de 280px para cada coluna */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 280px)); 
     gap: 20px;
+    justify-content: start; /* Alinha os produtos à esquerda, sem esticar */
 }
 
 .product-card {
-    background-color: white;
+   background-color: white;
     padding: 15px;
     border-radius: 10px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.08);
@@ -201,6 +209,8 @@ input[type="password"], input[type="number"], select {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    width: 100%; /* Garante que ele ocupe o espaço da coluna, mas não mais que isso */
+    max-width: 280px; /* Impede o esticamento excessivo */
 }
 
 .product-card img {
@@ -331,3 +341,42 @@ footer {
 }
 
 .hidden { display: none !important; }
+
+#cart-items {
+    margin: 20px 0;
+    border-top: 1px solid #eee;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.cart-item img {
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.cart-item button {
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    padding: 2px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.cart-item button:hover {
+    background: #ddd;
+}
+
+.cart-total-container {
+    text-align: right;
+    font-size: 1.2rem;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 2px solid #333;
+}
