@@ -1,4 +1,4 @@
-﻿// ==========================================
+// ==========================================
 // 1. CONFIGURAÇÃO E VARIÁVEIS DE ESTADO
 // ==========================================
 const SUPABASE_URL = globalThis.APP_CONFIG?.SUPABASE_URL || 'https://wdvtuvohucyndqjnfpyh.supabase.co';
@@ -124,9 +124,10 @@ async function finalizarPedido() {
     const pedidoNum = Math.floor(Math.random() * 90000) + 10000;
 
     const { error } = await _supabase.from('pedidosecommerce').insert([{
-        id_cliente: usuarioLogadoId,
         id_pedido: pedidoNum,
-        itens_compra: cart.map(i => `${i.quantity}x ${i.name}`).join(', '),
+        id_cliente: usuarioLogadoId,
+        itens_compra: cart.map(i => i.descricao).join(', '),
+        quantidade: cart.reduce((a, b) => a + b.quantity, 0),
         valor_total: total,
         metodo_pagamento: metodo,
         status: 'Aguardando separação',
@@ -192,5 +193,6 @@ document.querySelectorAll('.close-btn').forEach(btn => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    carregarProdutos();
     carregarProdutos();
 });
