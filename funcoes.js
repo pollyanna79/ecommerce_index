@@ -1,9 +1,8 @@
 // 1. CONFIGURAÇÃO DO SUPABASE
 const _supabase = supabase.createClient(
-    'https://wdvtuvohucyndqjnfpyh.supabase.co',
-    'sb_publishable_WUIsSwuV_kncGM-YfnT0EA_gnQlS_D3'
+    window.ENV_SUPABASE_URL,
+    window.ENV_SUPABASE_KEY
 );
-
 // 2. VARIÁVEIS 
 let cart = [];
 let usuarioLogado = null;
