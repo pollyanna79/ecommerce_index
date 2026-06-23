@@ -4,7 +4,7 @@ const _supabase = supabase.createClient(
     'sb_publishable_WUIsSwuV_kncGM-YfnT0EA_gnQlS_D3'
 );
 
-// 2. VARIÁVEIS GLOBAIS
+// 2. VARIÁVEIS 
 let cart = [];
 let usuarioLogado = null;
 let produtosDoBanco = [];
@@ -49,7 +49,7 @@ function renderizarProdutos(lista) {
     });
 }
 
-// DELEGAÇÃO DE EVENTOS (Resolve o problema do botão "Adicionar" não funcionar)
+// DELEGAÇÃO DE EVENTOS 
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('add-to-cart-btn')) {
         const id = parseInt(e.target.dataset.id);
