@@ -1,7 +1,7 @@
 // 1. CONFIGURAÇÃO DO SUPABASE
 const _supabase = supabase.createClient(
-    window.ENV_SUPABASE_URL,
-    window.ENV_SUPABASE_KEY
+    window.SUPABASE_URL,
+    window.SUPABASE_KEY
 );
 // 2. VARIÁVEIS 
 let cart = [];
