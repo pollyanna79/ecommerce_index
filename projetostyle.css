@@ -164,7 +164,18 @@ input[type="password"], input[type="number"], select {
     cursor: pointer;
     transition: background 0.3s;
 }
+.add-to-cart-btn{
+    background-color: #28a745;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s
 
+}
 .btn-primary:hover {
     background-color: #218838;
 }
