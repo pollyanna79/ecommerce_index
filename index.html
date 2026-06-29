@@ -63,7 +63,9 @@
         </div>
 
         <div id="checkout-modal" class="modal">
+            <span class="close-btn" data-modal="auth-modal">×</span>
             <div class="modal-content">
+                
                 <h2>Finalizar Compra</h2>
                 <div id="resumo-conteudo"></div>
                 <form id="checkout-form">
@@ -101,7 +103,11 @@
             </div>
         </div>
     </main>
-
+<script>
+    // Essas variáveis agora ficam disponíveis globalmente
+    window.SUPABASE_URL = "https://wdvtuvohucyndqjnfpyh.supabase.co"; 
+    window.SUPABASE_KEY = "sb_publishable_WUIsSwuV_kncGM-YfnT0EA_gnQlS_D3"; 
+</script>
     <script src="funcoes.js" defer></script>
 </body>
 </html>

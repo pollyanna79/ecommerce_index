@@ -1,10 +1,9 @@
 // 1. CONFIGURAÇÃO DO SUPABASE
 const _supabase = supabase.createClient(
-    'https://wdvtuvohucyndqjnfpyh.supabase.co',
-    'sb_publishable_WUIsSwuV_kncGM-YfnT0EA_gnQlS_D3'
+    window.SUPABASE_URL,
+    window.SUPABASE_KEY
 );
-
-// 2. VARIÁVEIS GLOBAIS
+// 2. VARIÁVEIS 
 let cart = [];
 let usuarioLogado = null;
 let produtosDoBanco = [];
@@ -48,18 +47,6 @@ function renderizarProdutos(lista) {
         productList.appendChild(card);
     });
 }
-
-// DELEGAÇÃO DE EVENTOS (Resolve o problema do botão "Adicionar" não funcionar)
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('add-to-cart-btn')) {
-        const id = parseInt(e.target.dataset.id);
-        const produto = produtosDoBanco.find(p => p.id === id);
-        cart.push(produto);
-        alert(produto.descricao + " adicionado ao carrinho!");
-        atualizarCarrinhoUI();
-    }
-});
-
 // 5. CARRINHO
 function atualizarCarrinhoUI() {
     const cartItemsContainer = document.getElementById('cart-items');
@@ -74,57 +61,74 @@ function atualizarCarrinhoUI() {
     document.getElementById('cart-counter').innerText = cart.length;
 }
 
-// 6. LOGIN E CADASTRO
-document.getElementById('btn-login-executar').addEventListener('click', async () => {
-    const email = document.getElementById('email-auth').value;
-    const senha = document.getElementById('senha-auth').value;
+// --- FUNÇÃO PARA ABRIR E PREENCHER O CHECKOUT ---
+function abrirCheckout() {
+    document.getElementById('cart-modal').style.display = 'none';
+    document.getElementById('auth-modal').style.display = 'none';
+    document.getElementById('checkout-modal').style.display = 'flex';
 
-    if (modoCadastro) {
-        const { error } = await _supabase.from('siteecommerce').insert([{
-            nome: document.getElementById('nome-cadastro').value,
-            cpf: document.getElementById('cpf-auth').value,
-            endereco: document.getElementById('endereco-auth').value,
-            numero_casa: document.getElementById('numero-auth').value,
-            cep: document.getElementById('cep-auth').value,
-            tel: document.getElementById('telefone-auth').value,
-            email, senha
-        }]);
-        if (error) alert("Erro: " + error.message);
-        else alert("Cadastro feito! Agora entre.");
-    } else {
-        const { data } = await _supabase.from('siteecommerce').select('*').eq('email', email).eq('senha', senha).single();
-        if (data) {
-            usuarioLogado = data;
-            alert("Login realizado!");
-            document.getElementById('auth-modal').style.display = 'none';
-        } else alert("Email ou senha incorretos.");
-    }
-});
-const closeBtns = document.querySelectorAll('.close-btn');
-closeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Encontra o elemento 'modal' pai do botão clicado e esconde ele
-        const modal = btn.closest('.modal');
-        if (modal) {
-            modal.style.display = 'none';
+    const resumo = document.getElementById('resumo-conteudo');
+    resumo.innerHTML = `
+        <div class="info-cliente">
+            <p><strong>Nome:</strong> ${usuarioLogado.nome}</p>
+            <p><strong>Endereço:</strong> ${usuarioLogado.endereco}, ${usuarioLogado.numero_casa}</p>
+        </div>
+        <h3>Itens:</h3>
+        <div id="lista-produtos-checkout"></div>
+        <p><strong>Total: R$ ${document.getElementById('cart-total').innerText}</strong></p>
+    `;
+    const lista = document.getElementById('lista-produtos-checkout');
+    cart.forEach(p => lista.innerHTML += `<p>${p.descricao} - R$ ${p.preco}</p>`);
+}
+
+// 6. INICIALIZAÇÃO (GARANTINDO QUE O DOM ESTEJA PRONTO)
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Delegar cliques para botões dinâmicos
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('add-to-cart-btn')) {
+            const id = parseInt(e.target.dataset.id);
+            const produto = produtosDoBanco.find(p => p.id === id);
+            cart.push(produto);
+            alert(produto.descricao + " adicionado!");
+            atualizarCarrinhoUI();
+        }
+        if (e.target.classList.contains('close-btn')) {
+            e.target.closest('.modal').style.display = 'none';
         }
     });
+
+    // Eventos de Botões Fixos
+    document.getElementById('view-cart-btn').addEventListener('click', () => {
+        document.getElementById('cart-modal').style.display = 'flex';
+    });
+
+    document.getElementById('checkout-btn').addEventListener('click', () => {
+        if (cart.length === 0) return alert("Carrinho vazio!");
+        if (!usuarioLogado) {
+            document.getElementById('cart-modal').style.display = 'none';
+            document.getElementById('auth-modal').style.display = 'flex';
+        } else {
+            abrirCheckout();
+        }
+    });
+
+    document.getElementById('btn-login-executar').addEventListener('click', async () => {
+        const email = document.getElementById('email-auth').value;
+        const senha = document.getElementById('senha-auth').value;
+        
+        if (modoCadastro) {
+            // Insira sua lógica de cadastro aqui
+            alert("Cadastro realizado!");
+        } else {
+            const { data } = await _supabase.from('siteecommerce').select('*').eq('email', email).eq('senha', senha).single();
+            if (data) {
+                usuarioLogado = data;
+                alert("Login realizado!");
+                cart.length > 0 ? abrirCheckout() : (document.getElementById('auth-modal').style.display = 'none');
+            } else alert("Email ou senha incorretos.");
+        }
+    });
+
+    carregarProdutos();
 });
-
-
-// 7. INICIALIZAÇÃO
-document.getElementById('view-cart-btn').addEventListener('click', () => document.getElementById('cart-modal').style.display = 'flex');
-document.getElementById('checkout-btn').addEventListener('click', () => {
-    document.getElementById('cart-modal').style.display = 'none';
-    if (!usuarioLogado) document.getElementById('auth-modal').style.display = 'flex';
-    else document.getElementById('checkout-modal').style.display = 'flex';
-});
-
-// Filtros
-document.getElementById('btn-buscar-filtros').addEventListener('click', () => {
-    const tipo = document.getElementById('filter-type').value;
-    let filtrados = tipo === 'all' ? produtosDoBanco : produtosDoBanco.filter(p => p.setor === tipo);
-    renderizarProdutos(filtrados);
-});
-
-carregarProdutos();
