@@ -100,6 +100,17 @@ document.getElementById('btn-login-executar').addEventListener('click', async ()
         } else alert("Email ou senha incorretos.");
     }
 });
+const closeBtns = document.querySelectorAll('.close-btn');
+closeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Encontra o elemento 'modal' pai do botão clicado e esconde ele
+        const modal = btn.closest('.modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+
 
 // 7. INICIALIZAÇÃO
 document.getElementById('view-cart-btn').addEventListener('click', () => document.getElementById('cart-modal').style.display = 'flex');
