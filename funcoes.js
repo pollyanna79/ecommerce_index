@@ -1,4 +1,4 @@
-//teste deploy//
+//teste deploy- para ajustar bloqueio//
 // 1. CONFIGURAÇÃO DO SUPABASE
 const _supabase = supabase.createClient(
     window.SUPABASE_URL,
