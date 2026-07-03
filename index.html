@@ -84,30 +84,38 @@
             </div>
         </div>
 
-        <div id="auth-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" data-modal="auth-modal">×</span>
-                <h2 id="auth-title">Entrar</h2>
-                <input type="email" id="email-auth" placeholder="Email">
-                <input type="password" id="senha-auth" placeholder="Senha">
-                <div id="campos-cadastro-extra" style="display: none;">
-                    <input type="text" id="nome-cadastro" placeholder="NOME">
-                    <input type="text" id="cpf-auth" placeholder="CPF">
-                    <input type="text" id="endereco-auth" placeholder="Endereço">
-                    <input type="text" id="numero-auth" placeholder="Numero">
-                    <input type="text" id="cep-auth" placeholder="CEP">
-                    <input type="text" id="telefone-auth" placeholder="Telefone">
-                </div>
-                <button id="btn-login-executar" class="btn-primary">Confirmar</button>
-                <p id="toggle-link" onclick="alternarModo()" style="cursor:pointer; color: blue;">Ainda não tem conta? Clique aqui.</p>
-            </div>
+     <div id="auth-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" data-modal="auth-modal">×</span>
+        
+        <h2 id="auth-title">Entrar</h2>
+
+        <div id="container-login">
+            <input type="email" id="email-login" placeholder="Email">
+            <input type="password" id="senha-login" placeholder="Senha">
         </div>
+
+        <div id="campos-cadastro-extra" style="display: none;">
+            <input type="text" id="nome-cadastro" placeholder="Nome Completo">
+            <input type="text" id="cpf-auth" placeholder="CPF">
+            <input type="text" id="telefone-auth" placeholder="Telefone">
+            <input type="text" id="endereco-auth" placeholder="Endereço">
+            <input type="text" id="numero-auth" placeholder="Número">
+            <input type="text" id="cep-auth" placeholder="CEP">
+            <input type="email" id="email-cadastro" placeholder="Email">
+            <input type="password" id="senha-cadastro" placeholder="Senha">
+        </div>
+
+        <button id="btn-login-executar" class="btn-primary">Confirmar</button>
+        
+        <p id="toggle-link" onclick="alternarModo()" style="cursor:pointer; color: blue;">
+            Ainda não tem conta? Clique aqui.
+        </p>
+    </div>
+</div>
     </main>
-<script>
-    // Essas variáveis agora ficam disponíveis globalmente
-    window.SUPABASE_URL = "https://wdvtuvohucyndqjnfpyh.supabase.co"; 
-    window.SUPABASE_KEY = "sb_publishable_WUIsSwuV_kncGM-YfnT0EA_gnQlS_D3"; 
-</script>
-    <script src="funcoes.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ <script src="config.js"></script>
+<script src="funcoes.js" defer></script>
 </body>
 </html>
