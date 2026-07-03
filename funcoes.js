@@ -1,4 +1,9 @@
+// 1. CONFIGURAÇÃO DO SUPABASE
 const _supabase = supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_ANON_KEY);
+
+
+
+
 // 2. VARIÁVEIS 
 let cart = [];
 let usuarioLogado = null;
