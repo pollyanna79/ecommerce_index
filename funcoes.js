@@ -7,57 +7,75 @@ let modoCadastro = false;
 let acaoPendente = null; // Pode ser 'checkout' ou 'pedidos'
 
 async function carregarMeusPedidos() {
-    // 1. Determina o e-mail: se logado, usa o objeto; se não, pega do input do modal
     const emailConsulta = usuarioLogado ? usuarioLogado.email : document.getElementById('email-login')?.value;
+    const email = (emailConsulta || '').toString().trim();
 
-    // Se não estiver logado e não houver e-mail no input, abre o modal
-    if (!usuarioLogado && !emailConsulta) {
+    if (!usuarioLogado && !email) {
         acaoPendente = 'pedidos';
         document.getElementById('senha-login').style.display = 'none';
         document.getElementById('auth-modal').style.display = 'flex';
         return;
     }
 
-    console.log("DEBUG: Iniciando busca para o email:", emailConsulta);
-
-    // 2. Prepara a UI
     const modalPedidos = document.getElementById('pedidos-modal');
     const container = document.getElementById('lista-pedidos');
-    
+
     if (modalPedidos) modalPedidos.style.display = 'flex';
     if (container) container.innerHTML = 'Buscando seus pedidos...';
 
-    // 3. Consulta na view usando o e-mail capturado (com trim para segurança)
-    const { data, error } = await _supabase
-        .from('view_detalhes_pedidos')
-        .select('*')
-        .eq('email', emailConsulta.trim());
+    try {
+        let query = _supabase.from('view_detalhes_pedidos').select('*');
 
-    // 4. Diagnóstico de erro
-    if (error) {
-        console.error("ERRO SUPABASE:", error);
-        if (container) container.innerHTML = 'Erro ao carregar pedidos: ' + error.message;
-        return;
-    }
-
-    console.log("DEBUG: Dados retornados do Supabase:", data);
-
-    // 5. Renderização
-    if (container) {
-        if (!data || data.length === 0) {
-            container.innerHTML = `<p>Nenhum pedido encontrado para: <strong>${emailConsulta}</strong></p>`;
-        } else {
-            container.innerHTML = ''; 
-            data.forEach(p => {
-                container.innerHTML += `
-                    <div style="border-bottom: 1px solid #eee; padding: 10px;">
-                        <p><strong>Pedido ID:</strong> ${p.id_pedido}</p>
-                        <p><strong>Itens:</strong> ${p.itens_compra}</p>
-                        <p><strong>Total:</strong> R$ ${parseFloat(p.valor_total || 0).toFixed(2)}</p>
-                    </div>
-                `;
-            });
+        if (usuarioLogado?.id) {
+            query = query.eq('id_cliente', usuarioLogado.id);
+        } else if (email) {
+            query = query.eq('email', email);
         }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('ERRO SUPABASE:', error);
+            if (container) container.innerHTML = 'Erro ao carregar pedidos: ' + error.message;
+            return;
+        }
+
+        if (container) {
+            if (!data || data.length === 0) {
+                container.innerHTML = `<p>Nenhum pedido encontrado para: <strong>${email || 'este usuário'}</strong></p>`;
+            } else {
+                container.innerHTML = data.map(p => {
+                    const nome = p.nome || p.nome_cliente || 'Cliente';
+                    const endereco = p.endereco || p.endereco_cliente || 'Não informado';
+                    const numeroCasa = p.numero_casa || p.numero || p.numero_endereco || 'S/N';
+                    const cep = p.cep || p.cep_cliente || 'Não informado';
+                    const emailPedido = p.email || p.email_cliente || email;
+                    const idPedido = p.id_pedido || p.id || p.pedido_id || 'Sem ID';
+                    const itensCompra = p.itens_compra || p['itens compra'] || p.itens || 'Sem itens';
+                    const quantidade = p.quantidade || p.qtd || 0;
+                    const valorTotal = p.valor_total || p['valor total'] || p.valor || 0;
+                    const status = p.status || p.status_pedido || 'Pendente';
+
+                    return `
+                        <div style="border-bottom: 1px solid #eee; padding: 10px;">
+                            <p><strong>Nome:</strong> ${nome}</p>
+                            <p><strong>Endereço:</strong> ${endereco}</p>
+                            <p><strong>Número:</strong> ${numeroCasa}</p>
+                            <p><strong>CEP:</strong> ${cep}</p>
+                            <p><strong>Email:</strong> ${emailPedido}</p>
+                            <p><strong>Pedido:</strong> ${idPedido}</p>
+                            <p><strong>Itens:</strong> ${itensCompra}</p>
+                            <p><strong>Quantidade:</strong> ${quantidade}</p>
+                            <p><strong>Total:</strong> R$ ${parseFloat(valorTotal || 0).toFixed(2)}</p>
+                            <p><strong>Status:</strong> ${status}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (err) {
+        console.error('Erro inesperado ao carregar pedidos:', err);
+        if (container) container.innerHTML = 'Erro ao carregar pedidos.';
     }
 }
 // 3. FUNÇÕES DE UI
@@ -147,15 +165,19 @@ function abrirCheckout() {
     document.getElementById('auth-modal').style.display = 'none';
     document.getElementById('checkout-modal').style.display = 'flex';
 
-const resumo = document.getElementById('resumo-conteudo');
-    
-    // 1. Preenche as informações do cliente e o título dos itens (fora do loop)
+    const resumo = document.getElementById('resumo-conteudo');
+    const clienteNome = usuarioLogado?.nome || usuarioLogado?.full_name || 'Cliente';
+    const clienteEmail = usuarioLogado?.email || document.getElementById('email-login')?.value || 'Não informado';
+    const clienteEndereco = usuarioLogado?.endereco || usuarioLogado?.endereço || 'Não informado';
+    const clienteNumero = usuarioLogado?.numero_casa || usuarioLogado?.numero || 'S/N';
+    const clienteCep = usuarioLogado?.cep || 'Não informado';
+
     resumo.innerHTML = `
         <div class="info-cliente">
-            <p><strong>Nome:</strong> ${usuarioLogado.nome}</p>
-            <p><strong>Email:</strong> ${usuarioLogado.email}</p>
-            <p><strong>Endereço:</strong> ${usuarioLogado.endereco}, ${usuarioLogado.numero_casa}</p>
-            <p><strong>CEP:</strong> ${usuarioLogado.cep}</p>
+            <p><strong>Nome:</strong> ${clienteNome}</p>
+            <p><strong>Email:</strong> ${clienteEmail}</p>
+            <p><strong>Endereço:</strong> ${clienteEndereco}, ${clienteNumero}</p>
+            <p><strong>CEP:</strong> ${clienteCep}</p>
         </div>
         <h3>Itens:</h3>
         <div id="lista-produtos-checkout"></div>
@@ -163,9 +185,8 @@ const resumo = document.getElementById('resumo-conteudo');
         <p><strong>Total Geral: R$ ${document.getElementById('cart-total').innerText}</strong></p>
     `;
 
-    // 2. Preenche apenas os produtos na div específica
     const lista = document.getElementById('lista-produtos-checkout');
-    lista.innerHTML = ''; // Limpa antes de preencher
+    lista.innerHTML = '';
 
     cart.forEach(p => {
         lista.innerHTML += `
@@ -180,161 +201,147 @@ const resumo = document.getElementById('resumo-conteudo');
     });
 }
 
-//Finalizar pedido 
 async function finalizarPedido() {
-    console.log("--- DEBUG: Iniciando Função ---");
-    
-    // 1. Coleta e tratamento de dados
-    const valorTotal = parseFloat(document.getElementById('cart-total')?.innerText.replace('R$', '').trim()) || 0;
+    const valorTotal = parseFloat(
+        document.getElementById('cart-total')?.innerText.replace(/[R$\s]/g, '').replace(',', '.') || 0
+    );
     const itens = cart.map(item => item.descricao).join(', ');
     const metodo = document.querySelector('input[name="payment-method"]:checked')?.value || 'pix';
     const cartao = document.getElementById('num-cartao')?.value || null;
-    const clienteId = usuarioLogado?.id || 0;
+    const clienteId = usuarioLogado?.id ? parseInt(usuarioLogado.id) : null;
+    const idProduto = cart[0]?.id ?? null;
 
-    // 2. Objeto formatado com campos obrigatórios
     const novoPedido = {
-        id_cliente: parseInt(clienteId),
-        itens_compra: itens,
-        quantidade: parseInt(cart.length),
+        id_cliente: clienteId,
+        itens_compra: itens || 'Sem itens',
+        quantidade: parseInt(cart.length || 0),
         valor_total: valorTotal,
         metodo_pagamento: metodo,
-        numero_cartao: metodo === 'cartao' ? cartao : 'NULL',
-        status: 'Pendente'
+        numero_cartao: metodo === 'cartao' ? cartao : null,
+        status: 'Pendente',
+        data_compra: new Date().toISOString(),
+        id_produto: idProduto
     };
 
-    console.log("--- DEBUG: Objeto que será enviado ---", novoPedido);
+    console.log('Dados enviados para o pedido:', novoPedido);
 
-    // 3. Inserção
     const { data, error } = await _supabase
         .from('pedidosecommerce')
         .insert([novoPedido])
         .select();
 
     if (error) {
-        console.error("--- ERRO DO SUPABASE ---", error);
-        alert("Erro no Supabase: " + error.message);
+        console.error('ERRO DO SUPABASE:', error);
+        alert('Erro ao salvar pedido: ' + error.message);
     } else {
-        console.log("--- SUCESSO ---", data);
-        alert("Pedido realizado com sucesso!");
+        console.log('Pedido salvo com sucesso:', data);
+        alert('Pedido realizado com sucesso!');
+        cart = [];
+        atualizarCarrinhoUI();
+        document.getElementById('checkout-modal').style.display = 'none';
         window.location.reload();
     }
 }
 
 // 6. INICIALIZAÇÃO (GARANTINDO QUE O DOM ESTEJA PRONTO)
 document.addEventListener('DOMContentLoaded', () => {
-document.getElementById('tracking-btn').addEventListener('click', () => {
-    // Se já estiver logado, busca direto. Se não, abre o modal de login.
-    if (usuarioLogado) {
-        carregarMeusPedidos();
-    } else {
-        acaoPendente = 'pedidos'; 
-        document.getElementById('auth-modal').style.display = 'flex';
-        // DICA: Você pode esconder o campo de senha aqui se quiser:
-        document.getElementById('senha-login').style.display = 'none'; 
-    }
-});
-    
-    // Delegar cliques para botões dinâmicos
+    carregarProdutos();
+
+    document.getElementById('tracking-btn').addEventListener('click', () => {
+        if (usuarioLogado) {
+            carregarMeusPedidos();
+        } else {
+            acaoPendente = 'pedidos';
+            document.getElementById('auth-modal').style.display = 'flex';
+            document.getElementById('senha-login').style.display = 'none';
+        }
+    });
+
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('add-to-cart-btn')) {
             const id = parseInt(e.target.dataset.id);
             const produto = produtosDoBanco.find(p => p.id === id);
-            cart.push(produto);
-            alert(produto.descricao + " adicionado!");
-            atualizarCarrinhoUI();
+            if (produto) {
+                cart.push(produto);
+                alert(produto.descricao + ' adicionado!');
+                atualizarCarrinhoUI();
+            }
         }
+
         if (e.target.classList.contains('close-btn')) {
             e.target.closest('.modal').style.display = 'none';
         }
     });
 
-    // Eventos de Botões Fixos
     document.getElementById('view-cart-btn').addEventListener('click', () => {
         document.getElementById('cart-modal').style.display = 'flex';
     });
 
- document.getElementById('checkout-btn').addEventListener('click', () => {
-    if (cart.length === 0) return alert("Carrinho vazio!");
-    acaoPendente = 'checkout';
-    document.getElementById('senha-login').style.display = 'block'; // Mostra a senha
-    document.getElementById('cart-modal').style.display = 'none';
-    document.getElementById('auth-modal').style.display = 'flex';
-});
-document.getElementById('btn-login-executar').addEventListener('click', async () => {
-    // Bloco de CADASTRO
-    if (modoCadastro) {
-        const nome = document.getElementById('nome-cadastro')?.value;
-        const email = document.getElementById('email-cadastro')?.value;
-        const senha = document.getElementById('senha-cadastro')?.value;
-        
-        if (!email || !senha || !nome) return alert("Preencha todos os campos.");
+    document.getElementById('checkout-btn').addEventListener('click', () => {
+        if (cart.length === 0) return alert('Carrinho vazio!');
+        acaoPendente = 'checkout';
+        document.getElementById('senha-login').style.display = 'block';
+        document.getElementById('cart-modal').style.display = 'none';
+        document.getElementById('auth-modal').style.display = 'flex';
+    });
 
-        const { data, error } = await _supabase
-            .from('siteecommerce')
-            .insert([{ nome, email, senha }])
-            .select().single();
-
-        if (error) return alert("Erro ao cadastrar: " + error.message);
-        
-        usuarioLogado = data;
-        document.getElementById('auth-modal').style.display = 'none';
-        acaoPendente === 'pedidos' ? carregarMeusPedidos() : abrirCheckout();
-        acaoPendente = null;
-
-    } else {
-        // Bloco de LOGIN
-        const email = document.getElementById('email-login').value;
-        const senha = document.getElementById('senha-login').value;
-
-        // Se for "pedidos", buscamos apenas pelo e-mail
-        let query = _supabase.from('siteecommerce').select('*').eq('email', email);
-        
-        if (acaoPendente !== 'pedidos') {
-            query = query.eq('senha', senha);
-        }
-
-        const { data, error } = await query.maybeSingle();
-
-        if (data) {
-            usuarioLogado = data; 
-            document.getElementById('auth-modal').style.display = 'none';
+    document.getElementById('btn-login-executar').addEventListener('click', async () => {
+        if (modoCadastro) {
+            const nome = document.getElementById('nome-cadastro')?.value;
+             const cpf = document.getElementById('cpf-auth')?.value;
+            const email = document.getElementById('email-cadastro')?.value;
+            const senha = document.getElementById('senha-cadastro')?.value;
+            const tel = document.getElementById('telefone-auth')?.value;
+           const endereco = document.getElementById('endereco-auth')?.value;
+            const numero_casa = document.getElementById('numero-auth')?.value;
+          const cep = document.getElementById('cep-auth').value;
             
-            if (acaoPendente === 'pedidos') {
-                carregarMeusPedidos();
-            } else {
-                abrirCheckout();
-            }
+
+
+            if (!email || !senha || !nome) return alert('Preencha todos os campos.');
+
+            const { data, error } = await _supabase
+                .from('siteecommerce')
+                .insert([{ nome,cpf,email,senha,tel,endereco,numero_casa,cep }])
+                .select()
+                .single();
+
+            if (error) return alert('Erro ao cadastrar: ' + error.message);
+
+            usuarioLogado = data;
+            document.getElementById('auth-modal').style.display = 'none';
+            acaoPendente === 'pedidos' ? carregarMeusPedidos() : abrirCheckout();
             acaoPendente = null;
         } else {
-            alert("Email ou dados incorretos.");
-        }
-    }
-});
+            const email = document.getElementById('email-login').value;
+            const senha = document.getElementById('senha-login').value;
 
-// --- 3. INICIALIZAÇÃO ---
-document.addEventListener('DOMContentLoaded', () => {
-    carregarProdutos();
-    document.getElementById('btn-primary').onclick = (e) => {
-    e.preventDefault(); 
-    console.log("Botão clicado!");
-    finalizarPedido();
-};
-    // Botão Pedidos (Tracking)
-    document.getElementById('tracking-btn').addEventListener('click', () => {
-        acaoPendente = 'pedidos';
-        // Garante que o campo de senha suma para não confundir
-        document.getElementById('senha-login').style.display = 'none'; 
-        document.getElementById('auth-modal').style.display = 'flex';
+            let query = _supabase.from('siteecommerce').select('*').eq('email', email);
+
+            if (acaoPendente !== 'pedidos') {
+                query = query.eq('senha', senha);
+            }
+
+            const { data, error } = await query.maybeSingle();
+
+            if (data) {
+                usuarioLogado = data;
+                document.getElementById('auth-modal').style.display = 'none';
+
+                if (acaoPendente === 'pedidos') {
+                    carregarMeusPedidos();
+                } else {
+                    abrirCheckout();
+                }
+                acaoPendente = null;
+            } else {
+                alert('Email ou dados incorretos.');
+            }
+        }
     });
-    
-    // Botão Checkout
-    document.getElementById('checkout-btn').addEventListener('click', () => {
-        if (cart.length === 0) return alert("Carrinho vazio!");
-        acaoPendente = 'checkout';
-        // Garante que o campo de senha apareça para login completo
-        document.getElementById('senha-login').style.display = 'block'; 
-        document.getElementById('auth-modal').style.display = 'flex';
+
+    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await finalizarPedido();
     });
-});
-    carregarProdutos();
 });
