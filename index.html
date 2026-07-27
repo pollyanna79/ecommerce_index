@@ -64,8 +64,9 @@
         </div>
 
         <div id="checkout-modal" class="modal">
-            <span class="close-btn" data-modal="auth-modal">×</span>
+           
             <div class="modal-content">
+                 <span class="close-btn" data-modal="auth-modal">×</span>
                 
                 <h2>Finalizar Compra</h2>
                 <div id="resumo-conteudo"></div>
@@ -74,13 +75,26 @@
                         <label><input type="radio" name="payment-method" value="pix" onclick="mostrarCampos('pix')" checked> Pix</label>
                         <label><input type="radio" name="payment-method" value="cartao" onclick="mostrarCampos('cartao')"> Cartão</label>
                     </div>
+                   
                     <div id="campos-cartao" style="display:none;">
-                        <input type="text" id="num-cartao" placeholder="Número do Cartão">
+                        <div class="card-input-wrapper" style="position: relative; width: 100%;">
+                        <input type="text" id="num-cartao" placeholder="Número do Cartão" style="padding-right: 50px;" oninput="identificarBandeiraCartao(this.value)">
+                        <img id="card-brand-img" src="" alt="Bandeira do Cartão" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); height: 22px; display: none;">
+                    </div>
+                    </div>
+                     <div id="div-nome-cartao" style="display:none;">
+                        <input type="text" id="nome-cartao" placeholder="Nome do cartão">
+                    </div>
+                     <div id="div-validade-cartao" style="display:none;">
+                        <input type="text" id="validade-cartao" placeholder="Validade do cartão">
+                    </div>
+                     <div id="div-cod-seguranca" style="display:none;">
+                        <input type="text" id="cod-seguranca" placeholder="Cód de Seg do cartão">
                     </div>
                     <div id="campos-pix" style="display:none;">
                         <p>Chave Pix: 123.456.789-00</p>
                     </div>
-                    <button type="submit" id="btn-primary">Finalizar Pedido</button>
+                    <button type="submit" id="btn-finalizar-pedido" class="btn-primary">Finalizar Pedido</button>
                 </form>
             </div>
         </div>
@@ -123,6 +137,48 @@
     </div>
 </div>
     </main>
+      <!-- INÍCIO DO RODAPÉ CRIADO -->
+    <footer>
+        <div class="footer-content">
+            <!-- Seção 1: Sobre / Nome do Site -->
+            <div class="footer-section">
+                <h3>Polly e-commerce</h3>
+                <p>Sua loja online favorita para encontrar as melhores novidades em eletrônicos, roupas e livros com total segurança e praticidade.</p>
+            </div>
+
+            <!-- Seção 2: Endereço -->
+            <div class="footer-section">
+                <h3>Endereço</h3>
+                <p>📍 Av. Paulista, 1000 - Conjunto 42</p>
+                <p>Bela Vista, São Paulo - SP</p>
+                <p>CEP: 01310-100</p>
+            </div>
+
+            <!-- Seção 3: Contatos -->
+            <div class="footer-section">
+                <h3>Contato</h3>
+                <p>📞 Telefone: (11) 98765-4321</p>
+                <p>✉️ E-mail: contato@pollyecommerce.com.br</p>
+                <p>🕒 Atendimento: Seg a Sex, das 9h às 18h</p>
+            </div>
+
+            <!-- Seção 4: Redes Sociais -->
+            <div class="footer-section">
+                <h3>Redes Sociais</h3>
+                <p>Fique por dentro das novidades e promoções:</p>
+                <div class="social-links">
+                    <a href="https://instagram.com" target="_blank" rel="noopener">📷 Instagram</a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener">👥 Facebook</a>
+                    <a href="https://whatsapp.com" target="_blank" rel="noopener">💬 WhatsApp</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Polly e-commerce. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <!-- FIM DO RODAPÉ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
  <script src="config.js"></script>
 <script src="funcoes.js" defer></script>

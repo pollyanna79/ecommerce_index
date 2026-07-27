@@ -93,8 +93,47 @@ function alternarModo() {
 }
 
 function mostrarCampos(metodo) {
-    document.getElementById('campos-cartao').style.display = metodo === 'cartao' ? 'block' : 'none';
+    const exibirCartao = metodo === 'cartao' ? 'block' : 'none';
+    
+    document.getElementById('campos-cartao').style.display = exibirCartao;
+    document.getElementById('div-nome-cartao').style.display = exibirCartao;
+    document.getElementById('div-validade-cartao').style.display = exibirCartao;
+    document.getElementById('div-cod-seguranca').style.display = exibirCartao;
+    
     document.getElementById('campos-pix').style.display = metodo === 'pix' ? 'block' : 'none';
+}
+function identificarBandeiraCartao(numero) {
+    const imgBandeira = document.getElementById('card-brand-img');
+    if (!imgBandeira) return;
+
+    // Remove espaços e caracteres não numéricos
+    const numLimpo = numero.replace(/\D/g, '');
+
+    let bandeira = '';
+    let urlImagem = '';
+
+    // Regras básicas de identificação por BIN (dígitos iniciais)
+    if (/^4/.test(numLimpo)) {
+        bandeira = 'visa';
+        urlImagem = 'https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png';
+    } else if (/^5[1-5]/.test(numLimpo) || /^2[2-7]/.test(numLimpo)) {
+        bandeira = 'mastercard';
+        urlImagem = 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg';
+    } else if (/^3[47]/.test(numLimpo)) {
+        bandeira = 'amex';
+        urlImagem = 'https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo_%282018%29.svg';
+    } else if (/^6[09]/.test(numLimpo) || /^652[0-9]/.test(numLimpo)) {
+        bandeira = 'elo';
+        urlImagem = 'https://upload.wikimedia.org/wikipedia/commons/8/8f/Elo_logo_%282018%29.svg';
+    }
+
+    if (urlImagem && numLimpo.length >= 2) {
+        imgBandeira.src = urlImagem;
+        imgBandeira.style.display = 'block';
+    } else {
+        imgBandeira.src = '';
+        imgBandeira.style.display = 'none';
+    }
 }
 
 // 4. LÓGICA DE PRODUTOS E FILTROS
@@ -202,11 +241,62 @@ function abrirCheckout() {
 }
 
 async function finalizarPedido() {
+  const metodo = document.querySelector('input[name="payment-method"]:checked')?.value || 'pix';
+
+    // VALIDAÇÕES ESPECÍFICAS PARA CARTÃO
+    if (metodo === 'cartao') {
+        const numCartaoInput = document.getElementById('num-cartao')?.value.replace(/\D/g, '') || '';
+        const nomeCartaoInput = document.getElementById('nome-cartao')?.value.trim() || '';
+        const validadeInput = document.getElementById('validade-cartao')?.value.trim() || '';
+
+        // 1. Validação de 16 números exatos
+        if (numCartaoInput.length !== 16) {
+            alert('O número do cartão deve conter exatamente 16 números.');
+            return;
+        }
+
+        // 2. Validação de Nome e Sobrenome
+        const partesNome = nomeCartaoInput.split(' ').filter(p => p.length > 0);
+        if (partesNome.length < 2) {
+            alert('Por favor, informe o nome completo (Nome e Sobrenome) igual ao impresso no cartão.');
+            return;
+        }
+
+        // 3. Validação de Validade (Mês/Ano não inferior ao atual)
+        const regexValidade = /^(\d{2})\/(\d{2,4})$/;
+        const matchValidade = validadeInput.match(regexValidade);
+        
+        if (!matchValidade) {
+            alert('Informe a validade no formato correto (MM/AA ou MM/AAAA).');
+            return;
+        }
+
+        const mesInformado = parseInt(matchValidade[1], 10);
+        let anoInformado = parseInt(matchValidade[2], 10);
+
+        if (mesInformado < 1 || mesInformado > 12) {
+            alert('Mês de validade inválido.');
+            return;
+        }
+
+        if (anoInformado < 100) {
+            anoInformado += 2000;
+        }
+
+        const dataAtual = new Date();
+        const anoAtual = dataAtual.getFullYear();
+        const mesAtual = dataAtual.getMonth() + 1;
+
+        if (anoInformado < anoAtual || (anoInformado === anoAtual && mesInformado < mesAtual)) {
+            alert('A validade do cartão não pode ser inferior ao mês e ano atual.');
+            return;
+        }
+    }
+
     const valorTotal = parseFloat(
         document.getElementById('cart-total')?.innerText.replace(/[R$\s]/g, '').replace(',', '.') || 0
     );
     const itens = cart.map(item => item.descricao).join(', ');
-    const metodo = document.querySelector('input[name="payment-method"]:checked')?.value || 'pix';
     const cartao = document.getElementById('num-cartao')?.value || null;
     const clienteId = usuarioLogado?.id ? parseInt(usuarioLogado.id) : null;
     const idProduto = cart[0]?.id ?? null;
@@ -242,6 +332,7 @@ async function finalizarPedido() {
         window.location.reload();
     }
 }
+
 
 // 6. INICIALIZAÇÃO (GARANTINDO QUE O DOM ESTEJA PRONTO)
 document.addEventListener('DOMContentLoaded', () => {

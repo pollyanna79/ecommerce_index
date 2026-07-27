@@ -388,3 +388,95 @@ footer {
     padding-top: 10px;
     border-top: 2px solid #333;
 }
+/* ============================================================
+   7. RODAPÉ RESPONSIVO (ATUALIZADO)
+   ============================================================ */
+footer {
+    background: linear-gradient(90deg, #2ecc71, #3498db);
+    color: white;
+    padding: 40px 0 20px;
+    margin-top: 50px;
+    width: 100%;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 220px;
+}
+
+.footer-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
+.footer-section p, .footer-section ul {
+    font-size: 0.9rem;
+    margin: 8px 0;
+    color: #f8f9fa;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 8px;
+}
+
+.footer-section ul li a, .social-links a {
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer-section ul li a:hover, .social-links a:hover {
+    text-decoration: underline;
+    opacity: 0.9;
+}
+
+.social-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.social-links a {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.social-links a:hover {
+    background-color: white;
+    color: #3498db;
+    transform: translateY(-2px);
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.85rem;
+}
