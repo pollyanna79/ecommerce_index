@@ -1,6 +1,6 @@
 # Ignore environment files
 .env
 
-
+config.js
 # Ignore node modules and generated files if you add any local tooling
 node_modules/
