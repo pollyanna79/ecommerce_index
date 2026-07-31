@@ -1,4 +1,8 @@
 {
   "buildCommand": "node build-config.js",
   "outputDirectory": "."
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 1f814a7 (ajustando erros de acentos)

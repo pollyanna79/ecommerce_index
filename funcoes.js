@@ -6,6 +6,15 @@ let produtosDoBanco = [];
 let modoCadastro = false;
 let acaoPendente = null; // Pode ser 'checkout' ou 'pedidos'
 
+function corrigirTexto(texto) {
+    if (!texto) return '';
+    try {
+        return decodeURIComponent(escape(texto));
+    } catch (e) {
+        return texto;
+    }
+}
+
 async function carregarMeusPedidos() {
     const emailConsulta = usuarioLogado ? usuarioLogado.email : document.getElementById('email-login')?.value;
     const email = (emailConsulta || '').toString().trim();
@@ -51,10 +60,10 @@ async function carregarMeusPedidos() {
                     const cep = p.cep || p.cep_cliente || 'Não informado';
                     const emailPedido = p.email || p.email_cliente || email;
                     const idPedido = p.id_pedido || p.id || p.pedido_id || 'Sem ID';
-                    const itensCompra = p.itens_compra || p['itens compra'] || p.itens || 'Sem itens';
+                    const itensCompra = corrigirTexto(p.itens_compra || p['itens compra'] || p.itens || 'Sem itens');
                     const quantidade = p.quantidade || p.qtd || 0;
                     const valorTotal = p.valor_total || p['valor total'] || p.valor || 0;
-                    const status = p.status || p.status_pedido || 'Pendente';
+                    const status = corrigirTexto(p.status || p.status_pedido || 'Pendente');
 
                     return `
                         <div style="border-bottom: 1px solid #eee; padding: 10px;">
@@ -178,7 +187,7 @@ function renderizarProdutos(lista) {
         card.className = 'product-card';
         card.innerHTML = `
             <img src="${p.imagem}" style="width:150px;">
-            <h3>${p.descricao}</h3>
+            <h3>${corrigirTexto(p.descricao)}</h3>
             <p>R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</p>
             <button class="add-to-cart-btn" data-id="${p.id}">Adicionar</button>`;
         productList.appendChild(card);
